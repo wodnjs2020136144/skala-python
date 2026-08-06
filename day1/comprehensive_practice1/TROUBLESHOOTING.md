@@ -46,3 +46,20 @@ Day1 종합 실습 1(데이터 수집 미니 파이프라인)을 사용자와 �
   ![Step3 정상 검증](outputs/step3_validation_run.png)
   ![Step3 검증 실패 케이스](outputs/step3_validation_error_case.png)
   로그 원문: `outputs/step3_validation_log.txt`
+
+## [Step 4] CSV vs Parquet 저장 성능 비교
+
+- 상황: 검증된 `valid_weather`를 `pandas.DataFrame`으로 변환하고, `time.perf_counter()`로 CSV/Parquet 각각의 쓰기·읽기 시간과 파일 용량을 측정하는 `run_pipeline()`을 작성. 이 과정에서 기존 `run_pipeline`이 없던 구조를 `validate_weather()` + `run_pipeline()` 함수로 리팩터링하며 전체 흐름을 하나로 통합.
+- 실행: `python3 day1/comprehensive_practice1/main_pipeline.py` (`.venv` 활성화 상태, Terminal.app에서 실행 후 캡처).
+- 결과(72건 기준):
+  | 항목 | CSV | Parquet |
+  |---|---|---|
+  | 파일 용량 | 3,943 bytes | 4,264 bytes |
+  | 쓰기 시간 | 2.818 ms | 45.629 ms |
+  | 읽기 시간 | 3.231 ms | 42.529 ms |
+- 해석: 일반적으로 "Parquet이 CSV보다 빠르다"고 알려져 있지만, 이번처럼 소량 데이터(72행)에서는 정반대로 CSV가 훨씬 빠르고 용량도 작았다. Parquet은 컬럼형 포맷 특성상 스키마/메타데이터 기록과 압축 코덱 초기화에 고정 오버헤드가 있어, 레코드 수가 적을 때는 이 오버헤드가 전체 처리 시간을 지배한다. 데이터가 수만~수백만 건 규모로 커지면 컬럼형 압축·I/O 이점이 이 오버헤드를 상쇄하고 역전될 것으로 예상되나, 이번 실습 데이터로는 확인되지 않음.
+- 결론: Step 4 통과. "포맷 선택은 데이터 규모에 따라 달라진다"는 실무 감각을 실측으로 확인.
+- 근거:
+  ![Step4 벤치마크 실행 결과](outputs/step4_benchmark_run.png)
+  로그 원문: `outputs/step4_benchmark_log.txt`
+  실제 산출 파일: `outputs/pipeline_result.csv`, `outputs/pipeline_result.parquet`

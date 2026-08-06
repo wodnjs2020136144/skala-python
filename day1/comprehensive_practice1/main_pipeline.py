@@ -6,9 +6,11 @@
 import asyncio
 import logging
 import time
+import os
 from typing import Any
 
 import httpx
+import pandas as pd
 from pydantic import BaseModel, Field, ValidationError
 
 WEATHER_URL = (
@@ -117,16 +119,25 @@ async def collect_all_data() -> tuple[list[dict[str, Any]], dict[str, Any], dict
         return weather_res, country_res, ip_res
 
 
-if __name__ == "__main__":
-    weather_raw, country_raw, ip_raw = asyncio.run(collect_all_data())
-
-    valid_weather = []
+# ---------------------------------------------------------
+# 3. 스키마 검증 및 저장 벤치마크 (Step 3, 4)
+# ---------------------------------------------------------
+def validate_weather(weather_raw: list[dict[str, Any]]) -> list[WeatherItem]:
+    """날씨 레코드 목록을 Pydantic 모델로 검증하고, 유효한 항목만 반환한다."""
+    valid_weather: list[WeatherItem] = []
     for item in weather_raw:
         try:
             valid_weather.append(WeatherItem.model_validate(item))
         except ValidationError as ve:
             logger.error(f"Weather 검증 실패: {ve}")
+    return valid_weather
 
+
+def run_pipeline() -> None:
+    """전체 파이프라인(수집 → 검증 → 저장 벤치마크)을 실행한다."""
+    weather_raw, country_raw, ip_raw = asyncio.run(collect_all_data())
+
+    valid_weather = validate_weather(weather_raw)
     country_info = CountryInfo.model_validate(country_raw)
     ip_info = IPLocationInfo.model_validate(ip_raw)
 
@@ -134,3 +145,47 @@ if __name__ == "__main__":
         f"Pydantic 검증 완료 - Weather: {len(valid_weather)}건, "
         f"Country: {country_info.name}, IP: {ip_info.ip}"
     )
+
+    df = pd.DataFrame([w.model_dump() for w in valid_weather])
+    df["country"] = country_info.name
+    df["ip"] = ip_info.ip
+
+    output_dir = os.path.join(os.path.dirname(__file__), "outputs")
+    csv_file = os.path.join(output_dir, "pipeline_result.csv")
+    parquet_file = os.path.join(output_dir, "pipeline_result.parquet")
+
+    t0 = time.perf_counter()
+    df.to_csv(csv_file, index=False, encoding="utf-8")
+    csv_write_time = time.perf_counter() - t0
+
+    t0 = time.perf_counter()
+    _ = pd.read_csv(csv_file)
+    csv_read_time = time.perf_counter() - t0
+    csv_size = os.path.getsize(csv_file)
+
+    t0 = time.perf_counter()
+    df.to_parquet(parquet_file, index=False)
+    parquet_write_time = time.perf_counter() - t0
+
+    t0 = time.perf_counter()
+    _ = pd.read_parquet(parquet_file)
+    parquet_read_time = time.perf_counter() - t0
+    parquet_size = os.path.getsize(parquet_file)
+
+    logger.info("=======================================================")
+    logger.info("[저장 포맷 성능 비교 벤치마크 리포트]")
+    logger.info("=======================================================")
+    logger.info(f"파일 용량   | CSV {csv_size:8d} bytes | Parquet {parquet_size:8d} bytes")
+    logger.info(
+        f"쓰기 시간   | CSV {csv_write_time * 1000:8.3f} ms | "
+        f"Parquet {parquet_write_time * 1000:8.3f} ms"
+    )
+    logger.info(
+        f"읽기 시간   | CSV {csv_read_time * 1000:8.3f} ms | "
+        f"Parquet {parquet_read_time * 1000:8.3f} ms"
+    )
+    logger.info("=======================================================")
+
+
+if __name__ == "__main__":
+    run_pipeline()

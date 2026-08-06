@@ -1,0 +1,16 @@
+2026-08-06 18:37:57,435 | INFO | Open-Meteo 날씨 API 수집 시작...
+2026-08-06 18:37:57,437 | INFO | Countries.dev 국가 정보 API 수집 시작...
+2026-08-06 18:37:57,437 | INFO | ip-api IP 위치 정보 수집 시작...
+2026-08-06 18:37:57,739 | INFO | HTTP Request: GET https://countries.dev/alpha/KOR "HTTP/1.1 200 OK"
+2026-08-06 18:37:57,944 | INFO | HTTP Request: GET http://ip-api.com/json/8.8.8.8 "HTTP/1.1 200 OK"
+2026-08-06 18:37:58,542 | INFO | HTTP Request: GET https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&hourly=temperature_2m,precipitation_probability&forecast_days=3&timezone=Asia/Seoul "HTTP/1.1 200 OK"
+2026-08-06 18:37:58,543 | INFO | Open-Meteo 수집 완료 (72건)
+2026-08-06 18:37:58,543 | INFO | 3개 API 비동기 동시 수집 완료 (소요시간: 1.108초)
+2026-08-06 18:37:58,546 | INFO | Pydantic 검증 완료 - Weather: 72건, Country: Korea (Republic of), IP: 8.8.8.8
+2026-08-06 18:37:58,658 | INFO | =======================================================
+2026-08-06 18:37:58,658 | INFO | [저장 포맷 성능 비교 벤치마크 리포트]
+2026-08-06 18:37:58,658 | INFO | =======================================================
+2026-08-06 18:37:58,658 | INFO | 파일 용량   | CSV     3943 bytes | Parquet     4264 bytes
+2026-08-06 18:37:58,658 | INFO | 쓰기 시간   | CSV    2.818 ms | Parquet 45.629 ms
+2026-08-06 18:37:58,658 | INFO | 읽기 시간   | CSV    3.231 ms | Parquet 42.529 ms
+2026-08-06 18:37:58,658 | INFO | =======================================================

@@ -1,0 +1,10 @@
+=== pytest (.venv, /Users/hwangjaewon/skala-workspace/skala-python/.venv/bin/python, Python 3.11.15) ===
+day1/comprehensive_practice1/tests/test_pipeline.py::test_weather_item_accepts_valid_range PASSED
+day1/comprehensive_practice1/tests/test_pipeline.py::test_weather_item_rejects_precip_prob_over_100 PASSED
+day1/comprehensive_practice1/tests/test_pipeline.py::test_validate_weather_filters_out_invalid_records PASSED
+day1/comprehensive_practice1/tests/test_pipeline.py::test_country_info_requires_two_letter_alpha2_code PASSED
+day1/comprehensive_practice1/tests/test_pipeline.py::test_ip_location_info_parses_required_fields PASSED
+5 passed in 0.37s
+
+=== ruff check day1/comprehensive_practice1/ ===
+All checks passed!

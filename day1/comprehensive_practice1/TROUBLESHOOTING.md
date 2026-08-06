@@ -62,4 +62,22 @@ Day1 종합 실습 1(데이터 수집 미니 파이프라인)을 사용자와 �
 - 근거:
   ![Step4 벤치마크 실행 결과](outputs/step4_benchmark_run.png)
   로그 원문: `outputs/step4_benchmark_log.txt`
+
+## [Step 5] pytest + ruff
+
+- 상황: `tests/test_pipeline.py`에 네트워크 호출 없이 순수하게 Pydantic 모델과 `validate_weather()` 함수만 검증하는 테스트 5건 작성 (정상/경계값/실패 케이스 혼합).
+  - `test_weather_item_accepts_valid_range` — 정상 범위 값 통과
+  - `test_weather_item_rejects_precip_prob_over_100` — 범위 초과 시 `ValidationError`
+  - `test_validate_weather_filters_out_invalid_records` — 정상/비정상 혼합 리스트에서 정상만 필터링되는지
+  - `test_country_info_requires_two_letter_alpha2_code` — `alpha2_code="KOR"`(3자리)처럼 길이 제약 위반 시 거부
+  - `test_ip_location_info_parses_required_fields` — 필수 필드 정상 파싱
+  - 모듈을 패키징하지 않은 단일 폴더 구조라 `sys.path.insert(0, str(Path(__file__).resolve().parent.parent))`로 `main_pipeline` 모듈을 임포트.
+- ruff 트러블슈팅(실제 겪은 오류 2건, 순차 해결):
+  1. 1차 오류: `I001 Import block is un-sorted` — `main_pipeline.py`의 `import os`가 `import time` 뒤에 위치해 표준 라이브러리 그룹 내 정렬이 어긋남 → `logging, os, time` 순으로 재배치.
+  2. 2차 오류: 같은 `I001`이 재발 — `import time`과 `from typing import Any` 사이에 불필요한 빈 줄이 있어 `typing`이 별도 그룹으로 분리되어 있었음(`typing`도 표준 라이브러리라 같은 그룹이어야 함) → 그 빈 줄 삭제로 해결. (중간에 동일 스크린샷을 다시 공유해서 수정이 반영 안 된 것처럼 보였던 순간이 있었으나, 파일을 직접 확인해 이미 정상 상태임을 확인하고 재실행으로 최종 검증함.)
+- 검증: `pytest day1/comprehensive_practice1/tests/ -v` → 5 passed. `ruff check day1/comprehensive_practice1/` → All checks passed!
+- 결론: Step 5 통과. import 순서 규칙은 "표준 라이브러리 vs 서드파티"뿐 아니라 "같은 그룹 내 알파벳 정렬"과 "그룹 내부에 불필요한 빈 줄 금지"까지 포함한다는 것을 실습으로 체득.
+- 근거:
+  ![Step5 pytest/ruff 실행 결과](outputs/step5_pytest_ruff_run.png)
+  로그 원문: `outputs/step5_pytest_ruff_log.txt`
   실제 산출 파일: `outputs/pipeline_result.csv`, `outputs/pipeline_result.parquet`

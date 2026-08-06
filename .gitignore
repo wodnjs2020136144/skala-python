@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+
+# 강의 자료 및 학습 가이드
+Day*_강의_내용_학습_가이드.md
+Day*_실습_내용_가이드.md
+Day*_종합_실습_*_가이드.md
+Python_Practice*_Data.json
+
+# Claude Code 설정/규칙
+.claude/

@@ -1,0 +1,17 @@
+=== 정상 실행 (main_pipeline.py) ===
+2026-08-06 18:31:22,543 | INFO | Open-Meteo 날씨 API 수집 시작...
+2026-08-06 18:31:22,546 | INFO | Countries.dev 국가 정보 API 수집 시작...
+2026-08-06 18:31:22,546 | INFO | ip-api IP 위치 정보 수집 시작...
+2026-08-06 18:31:22,849 | INFO | HTTP Request: GET https://countries.dev/alpha/KOR "HTTP/1.1 200 OK"
+2026-08-06 18:31:22,879 | INFO | HTTP Request: GET http://ip-api.com/json/8.8.8.8 "HTTP/1.1 200 OK"
+2026-08-06 18:31:23,655 | INFO | HTTP Request: GET https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&hourly=temperature_2m,precipitation_probability&forecast_days=3&timezone=Asia/Seoul "HTTP/1.1 200 OK"
+2026-08-06 18:31:23,657 | INFO | Open-Meteo 수집 완료 (72건)
+2026-08-06 18:31:23,657 | INFO | 3개 API 비동기 동시 수집 완료 (소요시간: 1.114초)
+2026-08-06 18:31:23,662 | INFO | Pydantic 검증 완료 - Weather: 72건, Country: Korea (Republic of), IP: 8.8.8.8
+
+=== 의도적 검증 실패 케이스 (precip_prob=150) ===
+검증 실패 (예상대로):
+1 validation error for WeatherItem
+precip_prob
+  Input should be less than or equal to 100 [type=less_than_equal, input_value=150, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/less_than_equal

@@ -41,6 +41,8 @@
 | Step5 | DuckDB SQL 파이프라인 | `step5_duckdb_pipeline.py` |
 | Step6 | `timeit` 성능 벤치마크 (number=10) | `step6_benchmark.py` |
 
+`_common.py`는 step2~5가 공통으로 사용하는 파일 로딩 예외처리 유틸리티다.
+
 각 단계의 실행 로그는 `outputs/`에 텍스트로도 남아 있다. 진행 중 발생한 이슈는 `TROUBLESHOOTING.md`에 정리했다.
 
 ### 단계별 실행 캡처
@@ -98,6 +100,18 @@
   5개의 SQL을 매 반복마다 실행하며, 매 쿼리가 CSV 파일을 다시 스캔하는 구조라 다른 두 엔진보다
   전체 소요시간이 길게 측정되었다. 단일 쿼리로 결과를 캐싱하거나 파일을 DuckDB 테이블로 먼저
   적재했다면 결과가 달라질 수 있다.
+
+## 코드 리뷰 후속 개선
+
+실습 Checkpoint 배점표(오류/예외 처리, 코드 간결성) 기준으로 코드 리뷰를 진행한 결과 두 가지를 보완했다.
+
+- **파일 로딩 예외처리**: CSV 파일이 없거나 손상된 경우 각 라이브러리의 원본 traceback 대신 명확한
+  메시지로 실패하도록 `_common.py`의 `ensure_csv_exists()`와 라이브러리별 예외 변환을 추가했다.
+- **집계 함수 중복 제거**: `step3`/`step4`/`step5`에서 group 컬럼만 다르고 구조가 동일했던
+  `agg_region_category`/`agg_payment_method`(/월별 집계)를 각 파일 내 공통 헬퍼로 통합했다.
+
+리팩터링 전후로 처리 로직과 결과 수치는 동일하며(재실행 결과를 기존 로그와 diff로 검증), 상세 경위는
+`TROUBLESHOOTING.md`에 기록했다.
 
 ## 결론
 

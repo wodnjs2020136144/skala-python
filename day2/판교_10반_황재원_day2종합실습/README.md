@@ -75,28 +75,13 @@ Pandas `read_csv`는 기본으로 결측 처리하지만 Polars `read_csv`는 �
 재실행 후 Step 1 결측률 상위 15개 컬럼이 완전히 일치함을 확인했다(자세한 원인 분석은
 [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md) 참고).
 
-```text
-=== Step 0: Pandas vs Polars 로딩 비교 ===
-엔진               행 수     열 수        로딩 시간(초)       메모리(MB)
-pandas         65437     114           1.248         195.7
-polars         65437     114           0.511         144.5
-[data_loader] 행·열 수 일치 확인 완료.
+Step 1 원본 EDA(Pandas) 실행 캡처:
 
-[타깃: ConvertedCompYearly]
-  결측 수: 42002 / 65437 (64.2%)
-  분위수:
-    0.01: 208
-    0.25: 32,712
-    0.50: 65,000
-    0.75: 107,972
-    0.99: 393,751
+![Step1 원본 EDA 실행 결과 (Pandas)](outputs/logs/step1_raw_eda_run.png)
 
-[수치형 후보 컬럼 dtype/샘플]
-  YearsCode: dtype=str, 샘플=['20', '37', '4', '9', '10']
-  YearsCodePro: dtype=str, 샘플=['17', '27', '7', '11', '25']
-  WorkExp: dtype=float64
-  JobSat: dtype=float64
-```
+Step 1 원본 결측률 집계 실행 캡처(Polars, `null_values=["NA"]` 수정 반영 후 — Pandas와 완전히 일치):
+
+![Step1 원본 결측률 실행 결과 (Polars)](outputs/logs/step1_raw_eda_polars_run.png)
 
 **Step2~5 — 정제, 정제 EDA, 상관분석, 범주형 그룹 비교**
 
@@ -106,27 +91,25 @@ polars         65437     114           0.511         144.5
 대비 큰 격차), 원격근무 형태별(Remote > Hybrid > In-person 순), 학력별(전문학위 > 석사 > 학사 순)로
 급여 중앙값이 뚜렷하게 갈렸다. 전체 로그는 [`outputs/logs/`](outputs/logs/)의 step2~5 파일에서 확인할 수 있다.
 
-```text
-=== Step 2: 결측치·중복·급여 이상치 처리 ===
-[시작] 65437행
-[1] 급여(ConvertedCompYearly) 결측 행 제거 → 23435행 (제거 42002행)
-[2] 완전 중복 행 제거 → 23435행 (제거 0행)
-[3] YearsCode/YearsCodePro 텍스트→숫자 변환 완료 (변환 후 결측: {'YearsCode': 47, 'YearsCodePro': 90})
-[4] 급여 IQR 이상치 제거 → 22457행 (제거 978행, 경계=[-80,177, 220,861])
-[완료] 최종 22457행 (원본 대비 34.3%)
+Step 2 정제 실행 캡처:
 
-=== Step 4: 급여와 수치형 변수의 상관관계 분석 ===
-[ConvertedCompYearly와의 상관계수 (절댓값 내림차순)]
-  WorkExp: 0.4084
-  YearsCodePro: 0.4002
-  YearsCode: 0.3983
-  JobSat: 0.0752
+![Step2 정제 실행 결과](outputs/logs/step2_preprocessing_run.png)
 
-=== Step 5: 범주형 변수별 급여 중앙값·분포 비교 (상위 3개 그룹만 발췌) ===
-[Country] United States of America $130,000 / Israel $113,334 / Switzerland $111,417
-[RemoteWork] Remote $70,000 / Hybrid $64,444 / In-person $42,962
-[EdLevel] 전문학위(JD/MD/PhD 등) $75,184 / 석사 $65,271 / 학사 $64,444
-```
+Step 3 정제 데이터 EDA(기술통계) 실행 캡처:
+
+![Step3 정제 데이터 EDA 실행 결과](outputs/logs/step3_clean_eda_run.png)
+
+Step 4 상관관계 분석 실행 캡처:
+
+![Step4 상관관계 분석 실행 결과](outputs/logs/step4_correlation_run.png)
+
+Step 5 범주형 그룹 비교 실행 캡처(Pandas — 국가/학력/직무유형/원격근무/조직규모/고용형태/산업 7개 변수 전체):
+
+![Step5 범주형 그룹 비교 실행 결과 (Pandas)](outputs/logs/step5_categorical_groups_run.png)
+
+Step 5 범주형 그룹 비교 실행 캡처(Polars — Pandas 결과와의 교차검증 로그 포함):
+
+![Step5 범주형 그룹 비교 실행 결과 (Polars)](outputs/logs/step5_categorical_groups_polars_run.png)
 
 **Step6~10 — 피처 선택, 시각화, t-test, ML Pipeline, report.md 자동 생성**
 
@@ -136,6 +119,7 @@ polars         65437     114           0.511         144.5
   후보에서 제외했다. `YearsCode`/`YearsCodePro`는 애초 4개 수치형 피처로 함께 채택했었으나,
   `WorkExp`와 VIF(분산팽창지수) 6.2~10.6으로 다중공선성이 심각해 급여 상관·VIF가 가장 우수한
   `WorkExp`만 남기고 제외했다(자세한 내용은 [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md) 참고).
+  ![Step6 피처 선택 실행 결과](outputs/logs/step6_feature_selection_run.png)
 
   **범주형 변수 간 상관(다중공선성) 검증**: `Country`/`RemoteWork`/`EdLevel`/`OrgSize`/`Industry`
   5개 범주형 피처끼리도 서로 겹치는 정보가 없는지 확인했다. VIF는 연속형·더미 인코딩을 전제하는
@@ -153,6 +137,8 @@ polars         65437     114           0.511         144.5
   Plotly 차트는 HTML이라 GitHub에서 바로 렌더링되지 않아 `kaleido`로 정적 PNG 미리보기도 함께
   생성했다(`create_plotly_chart(..., preview_path=...)`, `src/visualization.py`).
   ![Step7 Plotly 국가별 급여 분포 미리보기](outputs/charts/salary_by_country_preview.png)
+  실제 브라우저에서 렌더링된 화면도 캡처했다(로컬 HTTP 서버로 서빙 후 스크린샷):
+  ![Step7 Plotly 브라우저 실행 캡처](outputs/charts/salary_by_country_browser_capture.png)
   인터랙티브 HTML 원본: [`outputs/html/salary_by_country.html`](outputs/html/salary_by_country.html)
 - Step8: Remote(원격) vs In-person(사무실 근무) 급여 평균을 독립표본 t-검정(Welch's t-test)했다.
   p-value가 $3.2 \times 10^{-164}$로 0.05보다 훨씬 작아 두 그룹의 평균 급여 차이는 통계적으로 유의하다.

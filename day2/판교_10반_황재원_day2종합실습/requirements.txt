@@ -1,0 +1,19 @@
+# 이 프로젝트(main.py)를 단독으로 실행하는 데 필요한 의존성.
+# 저장소 루트 requirements.txt(전체 강의 환경 pip freeze)에서 실제 사용하는 패키지만 추렸다.
+choreographer==1.3.0
+joblib==1.5.3
+kaleido==1.3.0
+logistro==2.0.1
+matplotlib==3.11.1
+numpy==2.4.6
+orjson==3.11.9
+pandas==3.0.5
+plotly==6.9.0
+polars==1.43.2
+polars-runtime-32==1.43.2
+pyarrow==25.0.0
+requests==2.34.2
+scikit-learn==1.9.0
+scipy==1.17.1
+seaborn==0.13.2
+simplejson==4.1.1

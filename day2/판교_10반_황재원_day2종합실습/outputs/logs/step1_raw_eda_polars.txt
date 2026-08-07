@@ -1,6 +1,6 @@
 === Step 1 (Polars): 원본 데이터 결측률 집계 ===
 
-[소요 시간] 0.010초 (Lazy API, 114개 컬럼)
+[소요 시간] 0.016초 (Lazy API, 114개 컬럼)
 
 [결측률 상위 15개 컬럼]
   AINextMuch less integrated: 98.2%

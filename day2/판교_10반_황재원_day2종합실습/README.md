@@ -47,9 +47,22 @@ scikit-learn Pipeline(회귀+분류) 모델링, `report.md` 자동 생성까지�
 
 ## 실행 방법
 
+저장소 전체를 클론한 경우 루트의 공용 `.venv`를 사용한다.
+
 ```bash
 source .venv/bin/activate
 python day2/판교_10반_황재원_day2종합실습/main.py
+```
+
+이 폴더만 따로 받은 경우(예: 제출용 zip)에는 이 폴더 안의 `requirements.txt`로 독립 실행할 수 있다.
+루트 `requirements.txt`(전체 강의 환경 pip freeze)에서 이 프로젝트가 실제로 쓰는 패키지만 추린
+것으로, 새 가상환경에 설치 후 `main.py`가 동일한 결과를 내는지 별도로 검증했다.
+
+```bash
+cd day2/판교_10반_황재원_day2종합실습
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python main.py
 ```
 
 ## 단계별 실행 캡처

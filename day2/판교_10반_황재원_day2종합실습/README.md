@@ -136,6 +136,17 @@ polars         65437     114           0.511         144.5
   후보에서 제외했다. `YearsCode`/`YearsCodePro`는 애초 4개 수치형 피처로 함께 채택했었으나,
   `WorkExp`와 VIF(분산팽창지수) 6.2~10.6으로 다중공선성이 심각해 급여 상관·VIF가 가장 우수한
   `WorkExp`만 남기고 제외했다(자세한 내용은 [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md) 참고).
+
+  **범주형 변수 간 상관(다중공선성) 검증**: `Country`/`RemoteWork`/`EdLevel`/`OrgSize`/`Industry`
+  5개 범주형 피처끼리도 서로 겹치는 정보가 없는지 확인했다. VIF는 연속형·더미 인코딩을 전제하는
+  지표라 범주형 원본 변수 간 연관성 확인에는 맞지 않아, 대신 **Cramér's V**(0~1, 두 범주형 변수
+  간 연관 강도)를 5×5 전조합으로 계산했다. 절차는 ①교차표(`pd.crosstab`) 생성 → ②
+  `scipy.stats.chi2_contingency`로 카이제곱 통계량 산출 → ③표본 크기·범주 수 편향을 보정
+  (Bergsma 보정: `φ²_corr = max(0, φ²−(k−1)(r−1)/(n−1))`) → ④`V = sqrt(φ²_corr / min(k_corr−1, r_corr−1))`
+  순이다. 결과는 가장 높은 `Country`↔`RemoteWork`가 0.303(약~중간), `Country`↔`EdLevel` 0.176,
+  `RemoteWork`↔`OrgSize` 0.135, 나머지는 전부 0.13 미만으로 강한 연관은 없었다. 이 검증은
+  1회성 스크립트로 실행해 결과만 남겼으며 `src/` 파이프라인 코드에는 포함돼 있지 않다(원본 절차는
+  [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md)의 "Step 6 후속" 항목 참고).
 - Step7: Seaborn 2x2 서브플롯(급여 분포/원격근무별 박스플롯/경력-급여 산점도/상관 히트맵)과, 국가별(응답
   상위 10개국) 급여 분포 Plotly 인터랙티브 박스플롯을 생성했다.
   ![Step7 Seaborn EDA 2x2 서브플롯](outputs/charts/eda_2x2_subplots.png)
@@ -145,23 +156,11 @@ polars         65437     114           0.511         144.5
   인터랙티브 HTML 원본: [`outputs/html/salary_by_country.html`](outputs/html/salary_by_country.html)
 - Step8: Remote(원격) vs In-person(사무실 근무) 급여 평균을 독립표본 t-검정(Welch's t-test)했다.
   p-value가 $3.2 \times 10^{-164}$로 0.05보다 훨씬 작아 두 그룹의 평균 급여 차이는 통계적으로 유의하다.
+  ![Step8 t-test 실행 결과](outputs/logs/step8_ttest_run.png)
 - Step9: `ColumnTransformer`(수치형 결측대체+표준화, 범주형 결측대체+원핫인코딩) + `RandomForest`
   Pipeline을 회귀(급여 예측)·분류(중앙값 기준 고액 여부) 두 가지로 각각 구축·평가·저장했다.
+  ![Step9 ML Pipeline 실행 결과](outputs/logs/step9_ml_pipeline_run.png)
 - Step10: 위 결과를 종합해 [`report.md`](report.md)를 자동 생성했다.
-
-```text
-=== Step 8: t-test (Remote vs In-person 급여 비교) ===
-[Remote] n=9039, 평균=78,720
-[In-person] n=3833, 평균=52,638
-t-통계량=27.8965, p-value=3.22365e-164
-[해석] p-value(3.22365e-164) < 0.05 → 귀무가설(두 그룹의 급여 평균이 같다) 기각.
-       Remote 근무자와 In-person 근무자의 평균 급여 차이는 통계적으로 유의하다.
-
-=== Step 9: Pipeline 모델 학습·평가·저장 ===
-[회귀] R²=0.5370, MAE=25,635
-[분류] 고액 급여 기준(중앙값)=63,694
-[분류] Accuracy=0.7861, F1-score=0.7781
-```
 
 다중공선성 피처(`YearsCode`/`YearsCodePro`) 제거 후 회귀 R²(0.5879→0.5370)·분류 F1(0.7914→0.7781)이
 소폭 낮아졌다 — 중복 신호가 줄어든 데 따른 자연스러운 트레이드오프이며, 분류 Accuracy는 0.7861로

@@ -20,7 +20,7 @@
 ## Step 0/5 — Polars가 로딩 벤치마크에만 쓰이고 EDA에는 반영되지 않음
 
 **이슈**: `main.py`가 Step 0에서 `compare_engines()`로 Polars DataFrame을 받아놓고
-`_polars_df`라는 언더스코어 변수로 즉시 버려서, Step 1~10이 전부 Pandas로만 실행되고
+`_polars_df`라는 언더스코어 변수로 즉시 버려서, Step 1–10이 전부 Pandas로만 실행되고
 있었다. 채점 기준(Pandas·Polars 모두 사용해 EDA 수행)을 충족하지 못하는 상태였다.
 
 **해결**: `src/eda_polars.py`를 신규 작성해 Step 0에서 로딩한 Polars DataFrame을 재사용하는
@@ -68,7 +68,7 @@ null_values=["NA"])`를 추가해 Pandas와 동일한 기준으로 `"NA"`를 결
 ## Step 6 — 수치형 피처 간 다중공선성 미검토
 
 **이슈**: Step 4 상관행렬에 이미 `YearsCode`·`YearsCodePro`·`WorkExp` 사이 상관계수가
-0.87~0.92로 매우 높게 나와 있었는데, Step 6 피처 선택 시 급여와의 상관(모두 0.40 안팎)만
+0.87–0.92로 매우 높게 나와 있었는데, Step 6 피처 선택 시 급여와의 상관(모두 0.40 안팎)만
 보고 셋 다 모델 피처로 채택했다. 사용자가 다중공선성 여부를 지적해 VIF(분산팽창지수)를
 계산해보니 `YearsCode` 6.19, `YearsCodePro` 10.57, `WorkExp` 6.97로(통상 VIF>5 주의,
 VIF>10 심각 기준) 명백한 다중공선성이 확인됐다.
@@ -90,7 +90,7 @@ VIF>10 심각 기준) 명백한 다중공선성이 확인됐다.
 조합(수치형 `WorkExp`/`JobSat`, 범주형 `Country`/`RemoteWork`/`EdLevel`/`OrgSize`/`Industry`)
 전체에 대해서도 다중공선성이 없는지 추가로 검증했다.
 
-**검증 방법**: 수치형-수치형은 VIF, 범주형-범주형은 Cramér's V(0~1, 범주형 변수 간 연관성
+**검증 방법**: 수치형-수치형은 VIF, 범주형-범주형은 Cramér's V(0–1, 범주형 변수 간 연관성
 강도 지표 — VIF는 연속형·더미 인코딩 전제라 범주형 원본 변수 간 연관성 확인에는 부적절)로
 각각 계산했다.
 
@@ -100,7 +100,7 @@ VIF>10 심각 기준) 명백한 다중공선성이 확인됐다.
 |---|---|---|
 | 수치형 VIF | WorkExp | 1.01 |
 | 수치형 VIF | JobSat | 1.01 |
-| Cramér's V | Country ↔ RemoteWork | 0.303 (약~중간) |
+| Cramér's V | Country ↔ RemoteWork | 0.303 (약–중간) |
 | Cramér's V | Country ↔ EdLevel | 0.176 (약함) |
 | Cramér's V | RemoteWork ↔ OrgSize | 0.135 (약함) |
 | Cramér's V | 그 외 조합 | 모두 0.13 미만 |

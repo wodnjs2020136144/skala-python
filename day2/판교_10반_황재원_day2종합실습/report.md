@@ -1,19 +1,19 @@
 # Stack Overflow Developer Survey 2024 개발자 급여 분석 리포트
 
-생성 일시: 2026-08-07 17:12:25
+생성 일시: 2026-08-07 17:50:37
 
 ## Step 0. Pandas vs Polars 로딩 비교
 
 | 엔진 | 행 수 | 열 수 | 로딩 시간(초) | 메모리(MB) |
 |---|---|---|---|---|
-| pandas | 65437 | 114 | 1.148 | 195.7 |
-| polars | 65437 | 114 | 0.333 | 145.1 |
+| pandas | 65437 | 114 | 1.104 | 195.7 |
+| polars | 65437 | 114 | 0.349 | 145.1 |
 
 ## Polars 활용 범위
 
 로딩 성능 비교뿐 아니라, Step 1(원본 결측률 집계)과 Step 5(급여 정제·범주형 그룹 비교)를 Polars Lazy API로 이중 수행하고 Pandas 결과와 대조했다.
-- Step 1 결측률 집계: Polars 0.012초
-- Step 5 정제+그룹비교: Polars 0.060초, 정제 후 22457행 (Pandas와 행 수 일치, RemoteWork 그룹 중앙값 일치)
+- Step 1 결측률 집계: Polars 0.011초
+- Step 5 정제+그룹비교: Polars 0.054초, 정제 후 22457행 (Pandas와 행 수 일치, RemoteWork 그룹 중앙값 일치)
 
 ## Step 2. 정제 결과
 
@@ -33,7 +33,7 @@
 
 ## Step 6. 모델용 피처 선택 (다중공선성 제거)
 
-`YearsCode`·`YearsCodePro`·`WorkExp`는 서로 상관계수 0.87~0.92, VIF(분산팽창지수) 6.2~10.6으로 다중공선성이 심각했다. 급여와의 상관이 가장 높고 (r=0.408) VIF가 가장 낮은(6.97) `WorkExp`만 남기고 `YearsCode`/`YearsCodePro`는 모델 피처에서 제외했다.
+`YearsCode`·`YearsCodePro`·`WorkExp`는 서로 상관계수 0.87–0.92, VIF(분산팽창지수) 6.2–10.6으로 다중공선성이 심각했다. 급여와의 상관이 가장 높고 (r=0.408) VIF가 가장 낮은(6.97) `WorkExp`만 남기고 `YearsCode`/`YearsCodePro`는 모델 피처에서 제외했다.
 
 ## Step 8. t-test (Remote vs In-person 급여 비교)
 

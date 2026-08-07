@@ -103,8 +103,8 @@ def generate_report(context: dict, report_path: Path) -> None:
         "## Step 6. 모델용 피처 선택 (다중공선성 제거)",
         "",
         (
-            "`YearsCode`·`YearsCodePro`·`WorkExp`는 서로 상관계수 0.87~0.92, "
-            "VIF(분산팽창지수) 6.2~10.6으로 다중공선성이 심각했다. 급여와의 상관이 가장 높고 "
+            "`YearsCode`·`YearsCodePro`·`WorkExp`는 서로 상관계수 0.87–0.92, "
+            "VIF(분산팽창지수) 6.2–10.6으로 다중공선성이 심각했다. 급여와의 상관이 가장 높고 "
             "(r=0.408) VIF가 가장 낮은(6.97) `WorkExp`만 남기고 `YearsCode`/`YearsCodePro`는 "
             "모델 피처에서 제외했다."
         ),

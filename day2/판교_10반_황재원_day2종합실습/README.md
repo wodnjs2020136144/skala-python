@@ -35,7 +35,7 @@ scikit-learn Pipeline(회귀+분류) 모델링, `report.md` 자동 생성까지�
   더 크다고 판단해 제거를 선택했다.
 - **경력 텍스트 변환**: `YearsCode`/`YearsCodePro`의 `"Less than 1 year"` → 0, `"More than 50 years"` → 51로
   매핑하고 나머지는 정수 문자열을 그대로 숫자로 변환.
-- **급여 이상치**: IQR 규칙(`Q1 - 1.5*IQR` ~ `Q3 + 1.5*IQR`)으로 제거.
+- **급여 이상치**: IQR 규칙(`Q1 - 1.5*IQR` – `Q3 + 1.5*IQR`)으로 제거.
 
 원본 65,437행 → 급여 결측 제거 23,435행 → 완전 중복 0행 제거 → IQR 이상치 978행 제거 →
 **최종 22,457행**(원본 대비 34.3%)이 정제 데이터로 확정됐다.
@@ -54,7 +54,7 @@ python day2/판교_10반_황재원_day2종합실습/main.py
 
 ## 단계별 실행 캡처
 
-**Step0~1 — Pandas/Polars 로딩 비교 및 원본 EDA**
+**Step0–1 — Pandas/Polars 로딩 비교 및 원본 EDA**
 
 원본 CSV(65,437행 x 114열)를 두 엔진으로 로딩한 결과 행·열 수가 완전히 일치했다. Polars가
 Pandas보다 로딩 시간·메모리 양쪽에서 더 가벼웠다(Pandas 195.7MB/1.2초 vs Polars 144.5MB/0.5초).
@@ -83,13 +83,13 @@ Step 1 원본 결측률 집계 실행 캡처(Polars, `null_values=["NA"]` 수정
 
 ![Step1 원본 결측률 실행 결과 (Polars)](outputs/logs/step1_raw_eda_polars_run.png)
 
-**Step2~5 — 정제, 정제 EDA, 상관분석, 범주형 그룹 비교**
+**Step2–5 — 정제, 정제 EDA, 상관분석, 범주형 그룹 비교**
 
 정제 후 `WorkExp`(경력 연수)가 급여와 가장 강한 상관관계(r=0.408)를 보였고, `YearsCodePro`(0.400)·
 `YearsCode`(0.398)가 뒤를 이었다. `JobSat`(직무 만족도)은 급여와 거의 무관했다(r=0.075) — 급여가
 높다고 만족도가 비례해 오르지 않는다는 뜻이다. 범주형 비교에서는 국가별(미국 $130,000 vs 평균 근접국
 대비 큰 격차), 원격근무 형태별(Remote > Hybrid > In-person 순), 학력별(전문학위 > 석사 > 학사 순)로
-급여 중앙값이 뚜렷하게 갈렸다. 전체 로그는 [`outputs/logs/`](outputs/logs/)의 step2~5 파일에서 확인할 수 있다.
+급여 중앙값이 뚜렷하게 갈렸다. 전체 로그는 [`outputs/logs/`](outputs/logs/)의 step2–5 파일에서 확인할 수 있다.
 
 Step 2 정제 실행 캡처:
 
@@ -111,23 +111,23 @@ Step 5 범주형 그룹 비교 실행 캡처(Polars — Pandas 결과와의 교�
 
 ![Step5 범주형 그룹 비교 실행 결과 (Polars)](outputs/logs/step5_categorical_groups_polars_run.png)
 
-**Step6~10 — 피처 선택, 시각화, t-test, ML Pipeline, report.md 자동 생성**
+**Step6–10 — 피처 선택, 시각화, t-test, ML Pipeline, report.md 자동 생성**
 
 - Step6: 수치형 2개(`WorkExp`, `JobSat`) + 범주형 5개(`Country`, `RemoteWork`, `EdLevel`, `OrgSize`,
   `Industry`)를 모델 피처로 확정. `DevType`/`Employment`는 고유값이 지나치게 많고 상위 카테고리
   집중도가 낮아 제외, `CompTotal`/`Currency`는 급여에서 직접 파생돼 타깃 누수 위험이 있어 애초에
   후보에서 제외했다. `YearsCode`/`YearsCodePro`는 애초 4개 수치형 피처로 함께 채택했었으나,
-  `WorkExp`와 VIF(분산팽창지수) 6.2~10.6으로 다중공선성이 심각해 급여 상관·VIF가 가장 우수한
+  `WorkExp`와 VIF(분산팽창지수) 6.2–10.6으로 다중공선성이 심각해 급여 상관·VIF가 가장 우수한
   `WorkExp`만 남기고 제외했다(자세한 내용은 [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md) 참고).
   ![Step6 피처 선택 실행 결과](outputs/logs/step6_feature_selection_run.png)
 
   **범주형 변수 간 상관(다중공선성) 검증**: `Country`/`RemoteWork`/`EdLevel`/`OrgSize`/`Industry`
   5개 범주형 피처끼리도 서로 겹치는 정보가 없는지 확인했다. VIF는 연속형·더미 인코딩을 전제하는
-  지표라 범주형 원본 변수 간 연관성 확인에는 맞지 않아, 대신 **Cramér's V**(0~1, 두 범주형 변수
+  지표라 범주형 원본 변수 간 연관성 확인에는 맞지 않아, 대신 **Cramér's V**(0–1, 두 범주형 변수
   간 연관 강도)를 5×5 전조합으로 계산했다. 절차는 ①교차표(`pd.crosstab`) 생성 → ②
   `scipy.stats.chi2_contingency`로 카이제곱 통계량 산출 → ③표본 크기·범주 수 편향을 보정
   (Bergsma 보정: `φ²_corr = max(0, φ²−(k−1)(r−1)/(n−1))`) → ④`V = sqrt(φ²_corr / min(k_corr−1, r_corr−1))`
-  순이다. 결과는 가장 높은 `Country`↔`RemoteWork`가 0.303(약~중간), `Country`↔`EdLevel` 0.176,
+  순이다. 결과는 가장 높은 `Country`↔`RemoteWork`가 0.303(약–중간), `Country`↔`EdLevel` 0.176,
   `RemoteWork`↔`OrgSize` 0.135, 나머지는 전부 0.13 미만으로 강한 연관은 없었다. 이 검증은
   1회성 스크립트로 실행해 결과만 남겼으며 `src/` 파이프라인 코드에는 포함돼 있지 않다(원본 절차는
   [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md)의 "Step 6 후속" 항목 참고).

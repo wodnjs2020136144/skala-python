@@ -29,7 +29,30 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-CSV_PATH = Path(__file__).resolve().parents[2] / "sales_100k.csv"
+
+def _resolve_csv_path() -> Path:
+    """실행 위치에 관계없이 sales_100k.csv 위치를 찾는다.
+
+    이 스크립트 하나만 단독으로 제출/채점되어 CSV와 같은 폴더에 놓이는 경우와,
+    이 저장소의 day2/practice4/ 아래에서 실행되어 저장소 루트에 CSV가 있는 경우를
+    모두 지원하기 위해 두 후보 경로를 순서대로 확인한다. 두 경로 모두 없으면 스크립트와
+    같은 폴더를 기본값으로 돌려주어, 실행 시 어디에 CSV를 둬야 하는지 명확한 에러로
+    안내되도록 한다.
+
+    Returns:
+        존재가 확인된 CSV 경로. 둘 다 없으면 스크립트와 같은 폴더의 경로(기본값).
+    """
+    script_dir = Path(__file__).resolve().parent
+    candidates = [script_dir / "sales_100k.csv"]
+    if len(script_dir.parents) >= 2:
+        candidates.append(script_dir.parents[1] / "sales_100k.csv")
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return candidates[0]
+
+
+CSV_PATH = _resolve_csv_path()
 OUTPUT_DIR = Path(__file__).resolve().parent / "outputs"
 REQUIRED_COLS = ["region", "category", "amount"]
 NUMERIC_CORR_COLS = ["amount", "quantity", "unit_price", "customer_age"]

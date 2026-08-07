@@ -1,6 +1,6 @@
 === Step 5 (Polars): 급여 정제 및 범주형 그룹 비교 ===
 
-[소요 시간] 0.080초, 정제 후 22457행
+[소요 시간] 0.063초, 정제 후 22457행
 
 [Country] 그룹 수=68 (최소 표본 30건, 급여 중앙값 내림차순 상위 5개)
   United States of America: count=3990, median=130,000
@@ -43,8 +43,8 @@
   Independent contractor, freelancer, or self-employed;Employed, part-time: count=160, median=45,506
 
 [Industry] 그룹 수=16 (최소 표본 30건, 급여 중앙값 내림차순 상위 5개)
-  Insurance: count=215, median=80,000
   Government: count=525, median=80,000
+  Insurance: count=215, median=80,000
   Healthcare: count=720, median=76,380
   Transportation, or Supply Chain: count=488, median=73,663
   Other:: count=1670, median=71,650

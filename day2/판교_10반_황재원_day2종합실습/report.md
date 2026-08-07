@@ -1,19 +1,19 @@
 # Stack Overflow Developer Survey 2024 개발자 급여 분석 리포트
 
-생성 일시: 2026-08-07 18:19:01
+생성 일시: 2026-08-07 18:28:34
 
 ## Step 0. Pandas vs Polars 로딩 비교
 
 | 엔진 | 행 수 | 열 수 | 로딩 시간(초) | 메모리(MB) |
 |---|---|---|---|---|
-| pandas | 65437 | 114 | 1.176 | 195.7 |
-| polars | 65437 | 114 | 0.346 | 145.1 |
+| pandas | 65437 | 114 | 1.109 | 195.7 |
+| polars | 65437 | 114 | 0.342 | 145.1 |
 
 ## Polars 활용 범위
 
 로딩 성능 비교뿐 아니라, Step 1(원본 결측률 집계)과 Step 5(급여 정제·범주형 그룹 비교)를 Polars Lazy API로 이중 수행하고 Pandas 결과와 대조했다.
-- Step 1 결측률 집계: Polars 0.017초
-- Step 5 정제+그룹비교: Polars 0.080초, 정제 후 22457행 (Pandas와 행 수 일치, RemoteWork 그룹 중앙값 일치)
+- Step 1 결측률 집계: Polars 0.012초
+- Step 5 정제+그룹비교: Polars 0.063초, 정제 후 22457행 (Pandas와 행 수 일치, RemoteWork 그룹 중앙값 일치)
 
 ## Step 2. 정제 결과
 

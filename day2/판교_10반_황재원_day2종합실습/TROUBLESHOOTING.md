@@ -111,3 +111,19 @@ VIF>10 심각 기준) 명백한 다중공선성이 확인됐다.
 
 **결론**: 추가 조치는 필요 없다고 판단해 현재 7개 피처 구성(`WorkExp`, `JobSat`, `Country`,
 `RemoteWork`, `EdLevel`, `OrgSize`, `Industry`)을 그대로 유지했다.
+
+## Step 7 — Plotly 인터랙티브 차트가 GitHub에서 렌더링되지 않음
+
+**이슈**: `outputs/html/salary_by_country.html`은 로컬 브라우저에서는 정상 동작하지만
+GitHub README에서는 HTML 파일을 인라인으로 렌더링할 수 없어 결과를 문서에서 바로 확인할
+방법이 없었다. 브라우저 확장으로 스크린샷을 찍으려 했으나 이 환경에서는 확장이 연결되지
+않았다.
+
+**해결**: `plotly`의 정적 이미지 내보내기 엔진 `kaleido`를 설치하고,
+`create_plotly_chart()`에 `preview_path` 옵션을 추가해 HTML과 함께 정적 PNG
+(`outputs/charts/salary_by_country_preview.png`)도 생성하도록 했다. Plotly는 기본 폰트에
+한글 글리프가 없어 `fig.update_layout(font={"family": "AppleGothic"})`를 추가로 지정했다
+(matplotlib에서도 동일한 문제가 있어 `AppleGothic`으로 해결한 전례가 있음 —
+[`day2/practice4/TROUBLESHOOTING.md`](../practice4/TROUBLESHOOTING.md) 참고).
+`requirements.txt`에 `kaleido`와 그 의존 패키지(`choreographer`, `logistro`, `orjson`,
+`simplejson`)를 추가해 재현 가능하게 했다.

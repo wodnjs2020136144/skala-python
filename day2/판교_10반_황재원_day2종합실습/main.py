@@ -171,7 +171,9 @@ def main() -> None:
 
     # Step 7: Seaborn·Plotly 시각화
     create_seaborn_charts(model_df, CHARTS_DIR / "eda_2x2_subplots.png")
-    create_plotly_chart(model_df, HTML_DIR / "salary_by_country.html")
+    create_plotly_chart(
+        model_df, HTML_DIR / "salary_by_country.html", preview_path=CHARTS_DIR / "salary_by_country_preview.png"
+    )
 
     # Step 8: t-test 및 p-value 해석
     ttest = run_remote_work_ttest(model_df, LOG_DIR / "step8_ttest.txt")

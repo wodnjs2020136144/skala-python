@@ -61,12 +61,14 @@ def create_seaborn_charts(df: pd.DataFrame, output_path: Path) -> Path:
     return output_path
 
 
-def create_plotly_chart(df: pd.DataFrame, output_path: Path) -> Path:
+def create_plotly_chart(df: pd.DataFrame, output_path: Path, preview_path: Path | None = None) -> Path:
     """국가별(상위 N개) 급여 분포를 Plotly 인터랙티브 박스플롯 HTML로 저장한다.
 
     Args:
         df: 정제·피처 선택이 끝난 DataFrame.
         output_path: 저장할 HTML 파일 경로.
+        preview_path: 지정하면 GitHub 등에서 바로 볼 수 있도록 kaleido로 정적 PNG
+            미리보기도 함께 저장한다(HTML은 렌더링되지 않는 환경을 위한 문서용).
 
     Returns:
         저장된 HTML 파일 경로.
@@ -82,9 +84,15 @@ def create_plotly_chart(df: pd.DataFrame, output_path: Path) -> Path:
         title=f"국가별(응답 수 상위 {TOP_N_COUNTRIES}개) 급여 분포",
         labels={"Country": "국가", TARGET_COL: "연환산 급여 (USD)"},
     )
-    fig.update_layout(showlegend=False)
+    fig.update_layout(showlegend=False, font={"family": "AppleGothic"})
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.write_html(output_path)
     print(f"[visualization] Plotly 인터랙티브 차트 저장: {output_path}")
+
+    if preview_path is not None:
+        preview_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.write_image(preview_path, width=1400, height=800, scale=2)
+        print(f"[visualization] Plotly 정적 미리보기 PNG 저장: {preview_path}")
+
     return output_path

@@ -138,8 +138,11 @@ polars         65437     114           0.511         144.5
   `WorkExp`만 남기고 제외했다(자세한 내용은 [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md) 참고).
 - Step7: Seaborn 2x2 서브플롯(급여 분포/원격근무별 박스플롯/경력-급여 산점도/상관 히트맵)과, 국가별(응답
   상위 10개국) 급여 분포 Plotly 인터랙티브 박스플롯을 생성했다.
-  ![Step7 EDA 2x2 서브플롯](outputs/charts/eda_2x2_subplots.png)
-  인터랙티브 HTML: [`outputs/html/salary_by_country.html`](outputs/html/salary_by_country.html)
+  ![Step7 Seaborn EDA 2x2 서브플롯](outputs/charts/eda_2x2_subplots.png)
+  Plotly 차트는 HTML이라 GitHub에서 바로 렌더링되지 않아 `kaleido`로 정적 PNG 미리보기도 함께
+  생성했다(`create_plotly_chart(..., preview_path=...)`, `src/visualization.py`).
+  ![Step7 Plotly 국가별 급여 분포 미리보기](outputs/charts/salary_by_country_preview.png)
+  인터랙티브 HTML 원본: [`outputs/html/salary_by_country.html`](outputs/html/salary_by_country.html)
 - Step8: Remote(원격) vs In-person(사무실 근무) 급여 평균을 독립표본 t-검정(Welch's t-test)했다.
   p-value가 $3.2 \times 10^{-164}$로 0.05보다 훨씬 작아 두 그룹의 평균 급여 차이는 통계적으로 유의하다.
 - Step9: `ColumnTransformer`(수치형 결측대체+표준화, 범주형 결측대체+원핫인코딩) + `RandomForest`

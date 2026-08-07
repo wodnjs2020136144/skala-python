@@ -50,6 +50,36 @@
 - **최종 제출 스크립트(판교_10반_황재원.py)**: 다른 디렉토리에 대한 의존성 없이 독립적으로 실행돼야
   하므로, 결측 제거+IQR 로직을 자체적으로 다시 구현한다.
 
+## VSCode Pylance 정적 타입 검사 이슈
+
+코드 작성 시점에는 터미널 실행으로만 검증했는데, VSCode에서 직접 열어보니 Pylance가 아래 3건을
+에러로 표시했다. 셋 다 런타임 크래시는 아니고(실제 실행 결과는 수정 전후 동일), 정적 타입 분석
+단계에서만 걸리는 문제였다.
+
+**1) `"Axes" is not exported from module "matplotlib.pyplot"` (reportPrivateImportUsage)**
+
+`ax: plt.Axes` 타입힌트에서 `Axes`가 `matplotlib.pyplot`의 공식 공개 심볼이 아니어서 발생.
+`from matplotlib.axes import Axes`로 가져와 `ax: Axes`로 교체해 해결했다. 같은 이유로
+`step5_plotly_chart.py`의 `-> px.bar`(함수를 타입으로 잘못 사용)도 `-> go.Figure`
+(`plotly.graph_objects.Figure`)로 함께 교정했다.
+
+**2) `Argument of type "Series[Any]" ...` (reportArgumentType, `sns.histplot`)**
+
+`sns.histplot(df["amount"], kde=True, ...)`처럼 Series를 첫 위치 인자로 넘기면 seaborn 타입
+스텁이 이를 DataFrame을 기대하는 `data` 파라미터로 해석해 타입 불일치가 났다.
+`sns.histplot(data=df, x="amount", kde=True, ...)` 형태로 바꿔, 이미 사용 중이던
+`sns.boxplot(data=df, x=..., y=...)` 패턴과 통일해 해결했다.
+
+**3) `Import "step3_pandas_pipeline" could not be resolved` (reportMissingImports)**
+
+`_common.py`는 `sys.path.insert(0, str(PRACTICE3_DIR))`로 실행 시점에 practice3 경로를
+추가한 뒤 `from step3_pandas_pipeline import ...`를 한다. Pylance는 코드를 실행하지 않고
+정적으로만 분석하므로 이 동적 경로 추가를 알 수 없어 import를 해석하지 못했다.
+`day2/practice4/pyrightconfig.json`에 `{"extraPaths": ["../practice3"]}`를 추가해, Pylance가
+런타임과 동일하게 practice3 디렉토리를 import 탐색 경로에 포함하도록 했다(코드 변경 없이 설정
+파일만 추가 — 억제 주석 대신 실제 경로를 알려주는 방식을 택해 해당 함수들의 자동완성·타입 검사도
+함께 살아난다).
+
 ## sklearn Pipeline 학습 데이터 결정
 
 이미지의 "연계 Point" 표는 `sales_100k.csv`(원본)를 Pipeline 학습 데이터 원본으로 명시하고 있어,

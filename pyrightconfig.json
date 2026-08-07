@@ -1,0 +1,8 @@
+{
+  "executionEnvironments": [
+    {
+      "root": "day2/practice4",
+      "extraPaths": ["day2/practice3"]
+    }
+  ]
+}

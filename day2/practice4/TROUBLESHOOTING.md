@@ -75,10 +75,25 @@
 `_common.py`는 `sys.path.insert(0, str(PRACTICE3_DIR))`로 실행 시점에 practice3 경로를
 추가한 뒤 `from step3_pandas_pipeline import ...`를 한다. Pylance는 코드를 실행하지 않고
 정적으로만 분석하므로 이 동적 경로 추가를 알 수 없어 import를 해석하지 못했다.
-`day2/practice4/pyrightconfig.json`에 `{"extraPaths": ["../practice3"]}`를 추가해, Pylance가
-런타임과 동일하게 practice3 디렉토리를 import 탐색 경로에 포함하도록 했다(코드 변경 없이 설정
-파일만 추가 — 억제 주석 대신 실제 경로를 알려주는 방식을 택해 해당 함수들의 자동완성·타입 검사도
-함께 살아난다).
+
+1차로 `day2/practice4/pyrightconfig.json`에 `extraPaths`를 추가했지만 경고가 그대로 남았다.
+VSCode가 저장소 루트(`skala-python`)를 워크스페이스로 열고 있어, Pyright/Pylance는 워크스페이스
+루트의 설정 파일만 읽고 하위 폴더의 `pyrightconfig.json`은 인식하지 않기 때문이었다(config는
+"열려 있는 워크스페이스 폴더" 기준으로 탐색되며, 파일 위치를 기준으로 상위 탐색을 하지 않는다).
+
+**해결**: 설정 파일을 저장소 루트(`/pyrightconfig.json`)로 옮기고, `executionEnvironments`로
+`day2/practice4` 아래 파일에만 `day2/practice3`를 추가 경로로 적용하도록 범위를 좁혔다.
+
+```json
+{
+  "executionEnvironments": [
+    { "root": "day2/practice4", "extraPaths": ["day2/practice3"] }
+  ]
+}
+```
+
+코드 변경 없이 설정만으로 해결했으며(억제 주석 대신 실제 경로를 알려주는 방식이라 해당 함수들의
+자동완성·타입 검사도 함께 살아난다), 다른 실습 폴더에는 영향을 주지 않는다.
 
 ## sklearn Pipeline 학습 데이터 결정
 

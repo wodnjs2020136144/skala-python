@@ -13,6 +13,18 @@ REQUIRED_COLS = ["region", "category", "amount"]
 
 
 def scan_clean(csv_path: Path, verbose: bool = False) -> tuple[pl.LazyFrame, dict]:
+    """CSV를 Lazy로 스캔하고 region/category/amount 결측 행을 filter로 제외한다.
+
+    scan_csv는 즉시 데이터를 읽지 않으므로, 결측 건수 집계와 필터링 모두
+    collect() 호출 시점에 실제로 실행된다.
+
+    Args:
+        csv_path: 스캔할 CSV 파일 경로.
+        verbose: True면 결측 제거 전후 행 수와 컬럼별 결측 건수를 출력한다.
+
+    Returns:
+        결측 행이 제외된 LazyFrame과 (전/후 행 수, 컬럼별 결측 건수) 통계 딕셔너리.
+    """
     lf = pl.scan_csv(csv_path)
 
     before = lf.select(pl.len()).collect().item()
@@ -39,6 +51,18 @@ def scan_clean(csv_path: Path, verbose: bool = False) -> tuple[pl.LazyFrame, dic
 
 
 def filter_outliers_iqr(lf: pl.LazyFrame, verbose: bool = False) -> tuple[pl.LazyFrame, dict]:
+    """amount 컬럼 기준 IQR 범위를 벗어나는 이상치 행을 filter로 제외한다.
+
+    Q1/Q3는 interpolation="linear"로 계산해 pandas의 quantile() 기본 동작과
+    수치가 일치하도록 맞춘다.
+
+    Args:
+        lf: 이상치를 제거할 LazyFrame.
+        verbose: True면 IQR 범위와 제거 전후 행 수를 출력한다.
+
+    Returns:
+        이상치가 제외된 LazyFrame과 (Q1, Q3, IQR, 허용범위, 제거 건수) 통계 딕셔너리.
+    """
     before = lf.select(pl.len()).collect().item()
 
     quantiles = lf.select(
@@ -64,6 +88,18 @@ def filter_outliers_iqr(lf: pl.LazyFrame, verbose: bool = False) -> tuple[pl.Laz
 
 
 def agg_region_category(lf: pl.LazyFrame) -> pl.DataFrame:
+    """region x category 기준으로 매출을 집계한다.
+
+    group_by -> agg -> sort -> collect() 체인으로 Lazy 쿼리를 실행 계획째
+    최적화한 뒤 마지막에 한 번에 실행한다.
+
+    Args:
+        lf: 집계 대상 LazyFrame.
+
+    Returns:
+        total_amount(합계), avg_amount(평균), item_count(건수)를 담은
+        DataFrame. total_amount 내림차순으로 정렬된다.
+    """
     return (
         lf.group_by(["region", "category"])
         .agg(
@@ -77,6 +113,15 @@ def agg_region_category(lf: pl.LazyFrame) -> pl.DataFrame:
 
 
 def agg_payment_method(lf: pl.LazyFrame) -> pl.DataFrame:
+    """region x category x payment_method 기준으로 매출을 집계한다.
+
+    Args:
+        lf: 집계 대상 LazyFrame.
+
+    Returns:
+        total_amount(합계), avg_amount(평균), item_count(건수)를 담은
+        DataFrame. total_amount 내림차순으로 정렬된다.
+    """
     return (
         lf.group_by(["region", "category", "payment_method"])
         .agg(
@@ -90,6 +135,15 @@ def agg_payment_method(lf: pl.LazyFrame) -> pl.DataFrame:
 
 
 def agg_monthly_trend(lf: pl.LazyFrame) -> pl.DataFrame:
+    """order_date에서 연-월을 추출해 월별 매출 추이를 집계한다.
+
+    Args:
+        lf: 집계 대상 LazyFrame. order_date 컬럼은 'YYYY-MM-DD' 형식 문자열이어야 한다.
+
+    Returns:
+        order_month(연-월), total_amount, avg_amount, item_count를 담은
+        DataFrame. order_month 오름차순으로 정렬된다.
+    """
     return (
         lf.with_columns(pl.col("order_date").str.slice(0, 7).alias("order_month"))
         .group_by("order_month")
@@ -104,6 +158,16 @@ def agg_monthly_trend(lf: pl.LazyFrame) -> pl.DataFrame:
 
 
 def run_pipeline(csv_path: Path, verbose: bool = False) -> dict:
+    """결측 제거 -> IQR 이상치 제거 -> 집계 3종으로 이어지는 Lazy 파이프라인을 실행한다.
+
+    Args:
+        csv_path: 처리할 CSV 파일 경로.
+        verbose: True면 각 처리 단계의 통계를 출력한다.
+
+    Returns:
+        region_category/payment_method/monthly_trend 집계 결과와
+        clean_stats/outlier_stats 통계를 담은 딕셔너리.
+    """
     lf, clean_stats = scan_clean(csv_path, verbose=verbose)
     lf, outlier_stats = filter_outliers_iqr(lf, verbose=verbose)
 
@@ -117,6 +181,7 @@ def run_pipeline(csv_path: Path, verbose: bool = False) -> dict:
 
 
 def main() -> None:
+    """파이프라인을 실행하고 결과를 출력한 뒤 Pandas 결과와 교차 검증한다."""
     result = run_pipeline(CSV_PATH, verbose=True)
 
     print("\n[region x category 집계] (total_amount 내림차순, 상위 5행)")

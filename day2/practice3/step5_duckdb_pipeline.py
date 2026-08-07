@@ -14,6 +14,18 @@ CLEAN_WHERE = "region IS NOT NULL AND category IS NOT NULL AND amount IS NOT NUL
 
 
 def profile_and_bounds(csv_path: Path, verbose: bool = False) -> dict:
+    """결측 건수, 결측 제거 전후 행 수, IQR 이상치 허용범위를 SQL로 계산한다.
+
+    quantile_cont로 계산한 Q1/Q3를 기준으로 IQR 이상치 하한/상한을 구해
+    이후 집계 쿼리(agg_*)에서 재사용할 수 있도록 반환한다.
+
+    Args:
+        csv_path: 대상 CSV 파일 경로.
+        verbose: True면 결측/이상치 제거 통계를 출력한다.
+
+    Returns:
+        결측 건수, 행 수 변화, Q1/Q3/IQR, 이상치 허용범위(lower/upper)를 담은 딕셔너리.
+    """
     csv = str(csv_path)
 
     before = duckdb.sql(f"SELECT COUNT(*) AS n FROM '{csv}'").df()["n"].item()
@@ -58,6 +70,15 @@ def profile_and_bounds(csv_path: Path, verbose: bool = False) -> dict:
 
 
 def build_filtered_query(csv_path: Path, bounds: dict) -> str:
+    """결측 제거 + IQR 이상치 제거 조건이 적용된 SELECT 서브쿼리 문자열을 만든다.
+
+    Args:
+        csv_path: 대상 CSV 파일 경로.
+        bounds: profile_and_bounds()가 반환한 lower/upper 허용범위를 포함한 딕셔너리.
+
+    Returns:
+        집계 쿼리에서 FROM 절 서브쿼리로 사용할 SQL 문자열.
+    """
     return f"""
         SELECT * FROM '{csv_path}'
         WHERE {CLEAN_WHERE} AND amount BETWEEN {bounds['lower']} AND {bounds['upper']}
@@ -65,6 +86,16 @@ def build_filtered_query(csv_path: Path, bounds: dict) -> str:
 
 
 def agg_region_category(csv_path: Path, bounds: dict):
+    """region x category 기준으로 매출을 집계한다.
+
+    Args:
+        csv_path: 대상 CSV 파일 경로.
+        bounds: profile_and_bounds()가 반환한 이상치 허용범위 딕셔너리.
+
+    Returns:
+        total_amount(합계), avg_amount(평균), item_count(건수)를 담은
+        DataFrame. total_amount 내림차순으로 정렬된다.
+    """
     filtered = build_filtered_query(csv_path, bounds)
     query = f"""
         SELECT region, category,
@@ -79,6 +110,16 @@ def agg_region_category(csv_path: Path, bounds: dict):
 
 
 def agg_payment_method(csv_path: Path, bounds: dict):
+    """region x category x payment_method 기준으로 매출을 집계한다.
+
+    Args:
+        csv_path: 대상 CSV 파일 경로.
+        bounds: profile_and_bounds()가 반환한 이상치 허용범위 딕셔너리.
+
+    Returns:
+        total_amount(합계), avg_amount(평균), item_count(건수)를 담은
+        DataFrame. total_amount 내림차순으로 정렬된다.
+    """
     filtered = build_filtered_query(csv_path, bounds)
     query = f"""
         SELECT region, category, payment_method,
@@ -93,6 +134,19 @@ def agg_payment_method(csv_path: Path, bounds: dict):
 
 
 def agg_monthly_trend(csv_path: Path, bounds: dict):
+    """order_date에서 연-월을 추출해 월별 매출 추이를 집계한다.
+
+    order_date는 CSV 스캔 시 DuckDB가 DATE 타입으로 자동 추론하므로
+    SUBSTR에 넘기기 전 VARCHAR로 명시적으로 캐스팅한다.
+
+    Args:
+        csv_path: 대상 CSV 파일 경로.
+        bounds: profile_and_bounds()가 반환한 이상치 허용범위 딕셔너리.
+
+    Returns:
+        order_month(연-월), total_amount, avg_amount, item_count를 담은
+        DataFrame. order_month 오름차순으로 정렬된다.
+    """
     filtered = build_filtered_query(csv_path, bounds)
     query = f"""
         SELECT SUBSTR(CAST(order_date AS VARCHAR), 1, 7) AS order_month,
@@ -107,6 +161,16 @@ def agg_monthly_trend(csv_path: Path, bounds: dict):
 
 
 def run_pipeline(csv_path: Path, verbose: bool = False) -> dict:
+    """결측/이상치 범위 계산 -> SQL 집계 3종으로 이어지는 전체 파이프라인을 실행한다.
+
+    Args:
+        csv_path: 처리할 CSV 파일 경로.
+        verbose: True면 각 처리 단계의 통계를 출력한다.
+
+    Returns:
+        region_category/payment_method/monthly_trend 집계 결과와
+        bounds(결측/이상치 통계) 딕셔너리.
+    """
     bounds = profile_and_bounds(csv_path, verbose=verbose)
 
     return {
@@ -118,6 +182,7 @@ def run_pipeline(csv_path: Path, verbose: bool = False) -> dict:
 
 
 def main() -> None:
+    """파이프라인을 실행하고 결과를 출력한 뒤 Pandas 결과와 교차 검증한다."""
     result = run_pipeline(CSV_PATH, verbose=True)
 
     print("\n[region x category 집계] (total_amount 내림차순, 상위 5행)")

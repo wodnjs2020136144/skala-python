@@ -38,7 +38,33 @@
 | Step5 | DuckDB SQL 파이프라인 | `step5_duckdb_pipeline.py` |
 | Step6 | `timeit` 성능 벤치마크 (number=10) | `step6_benchmark.py` |
 
-각 단계의 실행 로그와 터미널 캡처는 `outputs/`에 있다. 진행 중 발생한 이슈는 `TROUBLESHOOTING.md`에 정리했다.
+각 단계의 실행 로그는 `outputs/`에 텍스트로도 남아 있다. 진행 중 발생한 이슈는 `TROUBLESHOOTING.md`에 정리했다.
+
+### 단계별 실행 캡처
+
+**Step1 — 환경 준비**: `.venv`에서 pandas/polars/duckdb import 확인
+
+![Step1 환경 준비 캡처](outputs/step1_env_check.png)
+
+**Step2 — 데이터 스키마/결측치 프로파일링**: `df.info()`, 결측 현황, amount 정합성 점검 결과
+
+![Step2 데이터 프로파일링 캡처](outputs/step2_profile_run.png)
+
+**Step3 — Pandas 파이프라인**: 결측/이상치 제거 통계와 집계 결과
+
+![Step3 Pandas 파이프라인 캡처](outputs/step3_pandas_run.png)
+
+**Step4 — Polars Lazy 파이프라인**: 동일 로직 실행 결과 및 Pandas 대비 교차 검증
+
+![Step4 Polars Lazy 파이프라인 캡처](outputs/step4_polars_run.png)
+
+**Step5 — DuckDB SQL 파이프라인**: SQL 집계 결과 및 Pandas 대비 교차 검증
+
+![Step5 DuckDB SQL 파이프라인 캡처](outputs/step5_duckdb_run.png)
+
+**Step6 — 성능 벤치마크**: 세 엔진 평균 소요시간 비교
+
+![Step6 성능 벤치마크 캡처](outputs/step6_benchmark_run.png)
 
 ## 결과 일치 검증
 

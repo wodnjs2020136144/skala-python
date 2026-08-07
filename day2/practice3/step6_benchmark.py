@@ -15,6 +15,14 @@ NUMBER = 10
 
 
 def run_benchmark() -> list[dict]:
+    """세 엔진의 run_pipeline()을 동일 반복 횟수(NUMBER)로 timeit 측정한다.
+
+    verbose=False로 호출해 파이프라인 내부 print를 억제하고 순수 처리
+    시간만 측정한다.
+
+    Returns:
+        엔진별 {engine, avg_ms(평균 소요시간), number(반복 횟수)} 딕셔너리 리스트.
+    """
     engines = [
         ("Pandas", lambda: pandas_pipeline.run_pipeline(CSV_PATH, verbose=False)),
         ("Polars Lazy", lambda: polars_pipeline.run_pipeline(CSV_PATH, verbose=False)),
@@ -30,6 +38,14 @@ def run_benchmark() -> list[dict]:
 
 
 def format_table(results: list[dict]) -> str:
+    """벤치마크 결과를 평균 소요시간 오름차순 markdown 표 문자열로 변환한다.
+
+    Args:
+        results: run_benchmark()가 반환한 엔진별 결과 리스트.
+
+    Returns:
+        markdown 표 형식 문자열.
+    """
     lines = ["| 엔진 | 평균 소요시간(ms) | 반복 횟수 |", "|---|---|---|"]
     for r in sorted(results, key=lambda x: x["avg_ms"]):
         lines.append(f"| {r['engine']} | {r['avg_ms']:.2f} | {r['number']} |")
@@ -37,6 +53,7 @@ def format_table(results: list[dict]) -> str:
 
 
 def main() -> None:
+    """벤치마크를 실행하고 결과를 출력한 뒤 markdown 표로 저장한다."""
     print(f"[벤치마크 조건] number={NUMBER} (세 엔진 동일 반복 횟수)")
     print("측정 중...")
     results = run_benchmark()

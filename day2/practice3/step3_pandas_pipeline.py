@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from _common import ensure_csv_exists
+
 CSV_PATH = Path(__file__).resolve().parents[2] / "sales_100k.csv"
 REQUIRED_COLS = ["region", "category", "amount"]
 
@@ -21,8 +23,16 @@ def load_and_clean(csv_path: Path, verbose: bool = False) -> tuple[pd.DataFrame,
 
     Returns:
         결측 행이 제거된 DataFrame과 (전/후 행 수, 컬럼별 결측 건수) 통계 딕셔너리.
+
+    Raises:
+        FileNotFoundError: csv_path에 파일이 없을 경우.
+        ValueError: CSV 내용이 비어 있거나 파싱할 수 없는 형식일 경우.
     """
-    df = pd.read_csv(csv_path)
+    ensure_csv_exists(csv_path)
+    try:
+        df = pd.read_csv(csv_path)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+        raise ValueError(f"CSV 파일을 읽을 수 없습니다: {csv_path}") from e
     before = len(df)
 
     missing_counts = {col: int(df[col].isnull().sum()) for col in REQUIRED_COLS}
@@ -69,18 +79,22 @@ def remove_outliers_iqr(df: pd.DataFrame, verbose: bool = False) -> tuple[pd.Dat
     return filtered, stats
 
 
-def agg_region_category(df: pd.DataFrame) -> pd.DataFrame:
-    """region x category 기준으로 매출을 집계한다.
+def _named_aggregation(df: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
+    """group_cols 기준으로 total_amount/avg_amount/item_count를 집계하는 공통 로직.
+
+    region x category, payment_method 확장 집계, 월별 추이 집계가 group_cols만
+    다르고 나머지 집계식은 동일하므로 이 헬퍼로 중복을 제거한다.
 
     Args:
         df: 집계 대상 DataFrame.
+        group_cols: groupby 기준 컬럼 목록.
 
     Returns:
         total_amount(합계), avg_amount(평균), item_count(건수)를 담은
         DataFrame. total_amount 내림차순으로 정렬된다.
     """
     return (
-        df.groupby(["region", "category"])
+        df.groupby(group_cols)
         .agg(
             total_amount=("amount", "sum"),
             avg_amount=("amount", "mean"),
@@ -89,6 +103,18 @@ def agg_region_category(df: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
         .sort_values("total_amount", ascending=False)
     )
+
+
+def agg_region_category(df: pd.DataFrame) -> pd.DataFrame:
+    """region x category 기준으로 매출을 집계한다.
+
+    Args:
+        df: 집계 대상 DataFrame.
+
+    Returns:
+        _named_aggregation() 결과. total_amount 내림차순으로 정렬된다.
+    """
+    return _named_aggregation(df, ["region", "category"])
 
 
 def agg_payment_method(df: pd.DataFrame) -> pd.DataFrame:
@@ -101,19 +127,9 @@ def agg_payment_method(df: pd.DataFrame) -> pd.DataFrame:
         df: 집계 대상 DataFrame.
 
     Returns:
-        total_amount(합계), avg_amount(평균), item_count(건수)를 담은
-        DataFrame. total_amount 내림차순으로 정렬된다.
+        _named_aggregation() 결과. total_amount 내림차순으로 정렬된다.
     """
-    return (
-        df.groupby(["region", "category", "payment_method"])
-        .agg(
-            total_amount=("amount", "sum"),
-            avg_amount=("amount", "mean"),
-            item_count=("amount", "count"),
-        )
-        .reset_index()
-        .sort_values("total_amount", ascending=False)
-    )
+    return _named_aggregation(df, ["region", "category", "payment_method"])
 
 
 def agg_monthly_trend(df: pd.DataFrame) -> pd.DataFrame:
@@ -123,20 +139,12 @@ def agg_monthly_trend(df: pd.DataFrame) -> pd.DataFrame:
         df: 집계 대상 DataFrame. order_date 컬럼은 'YYYY-MM-DD' 형식 문자열이어야 한다.
 
     Returns:
-        order_month(연-월), total_amount, avg_amount, item_count를 담은
-        DataFrame. order_month 오름차순으로 정렬된다.
+        order_month(연-월) 기준 _named_aggregation() 결과를 order_month
+        오름차순으로 다시 정렬한 DataFrame.
     """
     month = df["order_date"].str.slice(0, 7)
-    return (
-        df.assign(order_month=month)
-        .groupby("order_month")
-        .agg(
-            total_amount=("amount", "sum"),
-            avg_amount=("amount", "mean"),
-            item_count=("amount", "count"),
-        )
-        .reset_index()
-        .sort_values("order_month")
+    return _named_aggregation(df.assign(order_month=month), ["order_month"]).sort_values(
+        "order_month"
     )
 
 

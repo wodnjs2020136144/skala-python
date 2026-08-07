@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from _common import ensure_csv_exists
+
 CSV_PATH = Path(__file__).resolve().parents[2] / "sales_100k.csv"
 
 
@@ -19,8 +21,16 @@ def load_raw(csv_path: Path) -> pd.DataFrame:
 
     Returns:
         원본 컬럼 구조를 그대로 유지한 DataFrame.
+
+    Raises:
+        FileNotFoundError: csv_path에 파일이 없을 경우.
+        ValueError: CSV 내용이 비어 있거나 파싱할 수 없는 형식일 경우.
     """
-    return pd.read_csv(csv_path)
+    ensure_csv_exists(csv_path)
+    try:
+        return pd.read_csv(csv_path)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+        raise ValueError(f"CSV 파일을 읽을 수 없습니다: {csv_path}") from e
 
 
 def print_missing_report(df: pd.DataFrame) -> None:

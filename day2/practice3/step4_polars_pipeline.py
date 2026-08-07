@@ -8,6 +8,8 @@ from pathlib import Path
 
 import polars as pl
 
+from _common import ensure_csv_exists
+
 CSV_PATH = Path(__file__).resolve().parents[2] / "sales_100k.csv"
 REQUIRED_COLS = ["region", "category", "amount"]
 
@@ -24,10 +26,18 @@ def scan_clean(csv_path: Path, verbose: bool = False) -> tuple[pl.LazyFrame, dic
 
     Returns:
         결측 행이 제외된 LazyFrame과 (전/후 행 수, 컬럼별 결측 건수) 통계 딕셔너리.
+
+    Raises:
+        FileNotFoundError: csv_path에 파일이 없을 경우.
+        ValueError: CSV 내용을 스캔/파싱할 수 없을 경우.
     """
+    ensure_csv_exists(csv_path)
     lf = pl.scan_csv(csv_path)
 
-    before = lf.select(pl.len()).collect().item()
+    try:
+        before = lf.select(pl.len()).collect().item()
+    except pl.exceptions.ComputeError as e:
+        raise ValueError(f"CSV 파일을 읽을 수 없습니다: {csv_path}") from e
     missing_counts = (
         lf.select([pl.col(c).is_null().sum().alias(c) for c in REQUIRED_COLS])
         .collect()
@@ -87,21 +97,24 @@ def filter_outliers_iqr(lf: pl.LazyFrame, verbose: bool = False) -> tuple[pl.Laz
     return filtered_lf, stats
 
 
-def agg_region_category(lf: pl.LazyFrame) -> pl.DataFrame:
-    """region x category 기준으로 매출을 집계한다.
+def _named_aggregation(lf: pl.LazyFrame, group_cols: list[str]) -> pl.DataFrame:
+    """group_cols 기준으로 total_amount/avg_amount/item_count를 집계하는 공통 로직.
 
+    region x category, payment_method 확장 집계, 월별 추이 집계가 group_cols만
+    다르고 나머지 집계식은 동일하므로 이 헬퍼로 중복을 제거한다.
     group_by -> agg -> sort -> collect() 체인으로 Lazy 쿼리를 실행 계획째
     최적화한 뒤 마지막에 한 번에 실행한다.
 
     Args:
         lf: 집계 대상 LazyFrame.
+        group_cols: group_by 기준 컬럼 목록.
 
     Returns:
         total_amount(합계), avg_amount(평균), item_count(건수)를 담은
         DataFrame. total_amount 내림차순으로 정렬된다.
     """
     return (
-        lf.group_by(["region", "category"])
+        lf.group_by(group_cols)
         .agg(
             pl.col("amount").sum().alias("total_amount"),
             pl.col("amount").mean().alias("avg_amount"),
@@ -110,6 +123,18 @@ def agg_region_category(lf: pl.LazyFrame) -> pl.DataFrame:
         .sort("total_amount", descending=True)
         .collect()
     )
+
+
+def agg_region_category(lf: pl.LazyFrame) -> pl.DataFrame:
+    """region x category 기준으로 매출을 집계한다.
+
+    Args:
+        lf: 집계 대상 LazyFrame.
+
+    Returns:
+        _named_aggregation() 결과. total_amount 내림차순으로 정렬된다.
+    """
+    return _named_aggregation(lf, ["region", "category"])
 
 
 def agg_payment_method(lf: pl.LazyFrame) -> pl.DataFrame:
@@ -119,19 +144,9 @@ def agg_payment_method(lf: pl.LazyFrame) -> pl.DataFrame:
         lf: 집계 대상 LazyFrame.
 
     Returns:
-        total_amount(합계), avg_amount(평균), item_count(건수)를 담은
-        DataFrame. total_amount 내림차순으로 정렬된다.
+        _named_aggregation() 결과. total_amount 내림차순으로 정렬된다.
     """
-    return (
-        lf.group_by(["region", "category", "payment_method"])
-        .agg(
-            pl.col("amount").sum().alias("total_amount"),
-            pl.col("amount").mean().alias("avg_amount"),
-            pl.col("amount").count().alias("item_count"),
-        )
-        .sort("total_amount", descending=True)
-        .collect()
-    )
+    return _named_aggregation(lf, ["region", "category", "payment_method"])
 
 
 def agg_monthly_trend(lf: pl.LazyFrame) -> pl.DataFrame:
@@ -141,20 +156,11 @@ def agg_monthly_trend(lf: pl.LazyFrame) -> pl.DataFrame:
         lf: 집계 대상 LazyFrame. order_date 컬럼은 'YYYY-MM-DD' 형식 문자열이어야 한다.
 
     Returns:
-        order_month(연-월), total_amount, avg_amount, item_count를 담은
-        DataFrame. order_month 오름차순으로 정렬된다.
+        order_month(연-월) 기준 _named_aggregation() 결과를 order_month
+        오름차순으로 다시 정렬한 DataFrame.
     """
-    return (
-        lf.with_columns(pl.col("order_date").str.slice(0, 7).alias("order_month"))
-        .group_by("order_month")
-        .agg(
-            pl.col("amount").sum().alias("total_amount"),
-            pl.col("amount").mean().alias("avg_amount"),
-            pl.col("amount").count().alias("item_count"),
-        )
-        .sort("order_month")
-        .collect()
-    )
+    monthly_lf = lf.with_columns(pl.col("order_date").str.slice(0, 7).alias("order_month"))
+    return _named_aggregation(monthly_lf, ["order_month"]).sort("order_month")
 
 
 def run_pipeline(csv_path: Path, verbose: bool = False) -> dict:

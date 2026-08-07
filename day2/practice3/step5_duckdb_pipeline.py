@@ -9,6 +9,8 @@ from pathlib import Path
 
 import duckdb
 
+from _common import ensure_csv_exists
+
 CSV_PATH = Path(__file__).resolve().parents[2] / "sales_100k.csv"
 CLEAN_WHERE = "region IS NOT NULL AND category IS NOT NULL AND amount IS NOT NULL"
 
@@ -25,10 +27,18 @@ def profile_and_bounds(csv_path: Path, verbose: bool = False) -> dict:
 
     Returns:
         결측 건수, 행 수 변화, Q1/Q3/IQR, 이상치 허용범위(lower/upper)를 담은 딕셔너리.
+
+    Raises:
+        FileNotFoundError: csv_path에 파일이 없을 경우.
+        ValueError: CSV 내용을 읽을 수 없을 경우.
     """
+    ensure_csv_exists(csv_path)
     csv = str(csv_path)
 
-    before = duckdb.sql(f"SELECT COUNT(*) AS n FROM '{csv}'").df()["n"].item()
+    try:
+        before = duckdb.sql(f"SELECT COUNT(*) AS n FROM '{csv}'").df()["n"].item()
+    except duckdb.Error as e:
+        raise ValueError(f"CSV 파일을 읽을 수 없습니다: {csv_path}") from e
     missing = duckdb.sql(f"""
         SELECT
             SUM(CASE WHEN region IS NULL THEN 1 ELSE 0 END) AS region,
@@ -85,6 +95,35 @@ def build_filtered_query(csv_path: Path, bounds: dict) -> str:
     """
 
 
+def _named_agg_sql(csv_path: Path, bounds: dict, group_cols: list[str]):
+    """group_cols 기준으로 total_amount/avg_amount/item_count를 집계하는 공통 SQL 실행 로직.
+
+    region x category, payment_method 확장 집계가 group_cols만 다르고
+    나머지 SELECT/GROUP BY 구조는 동일하므로 이 헬퍼로 중복을 제거한다.
+
+    Args:
+        csv_path: 대상 CSV 파일 경로.
+        bounds: profile_and_bounds()가 반환한 이상치 허용범위 딕셔너리.
+        group_cols: GROUP BY 기준 컬럼 목록.
+
+    Returns:
+        total_amount(합계), avg_amount(평균), item_count(건수)를 담은
+        DataFrame. total_amount 내림차순으로 정렬된다.
+    """
+    filtered = build_filtered_query(csv_path, bounds)
+    group_by = ", ".join(group_cols)
+    query = f"""
+        SELECT {group_by},
+               SUM(amount) AS total_amount,
+               AVG(amount) AS avg_amount,
+               COUNT(amount) AS item_count
+        FROM ({filtered}) t
+        GROUP BY {group_by}
+        ORDER BY total_amount DESC
+    """
+    return duckdb.sql(query).df()
+
+
 def agg_region_category(csv_path: Path, bounds: dict):
     """region x category 기준으로 매출을 집계한다.
 
@@ -93,20 +132,9 @@ def agg_region_category(csv_path: Path, bounds: dict):
         bounds: profile_and_bounds()가 반환한 이상치 허용범위 딕셔너리.
 
     Returns:
-        total_amount(합계), avg_amount(평균), item_count(건수)를 담은
-        DataFrame. total_amount 내림차순으로 정렬된다.
+        _named_agg_sql() 결과. total_amount 내림차순으로 정렬된다.
     """
-    filtered = build_filtered_query(csv_path, bounds)
-    query = f"""
-        SELECT region, category,
-               SUM(amount) AS total_amount,
-               AVG(amount) AS avg_amount,
-               COUNT(amount) AS item_count
-        FROM ({filtered}) t
-        GROUP BY region, category
-        ORDER BY total_amount DESC
-    """
-    return duckdb.sql(query).df()
+    return _named_agg_sql(csv_path, bounds, ["region", "category"])
 
 
 def agg_payment_method(csv_path: Path, bounds: dict):
@@ -117,20 +145,9 @@ def agg_payment_method(csv_path: Path, bounds: dict):
         bounds: profile_and_bounds()가 반환한 이상치 허용범위 딕셔너리.
 
     Returns:
-        total_amount(합계), avg_amount(평균), item_count(건수)를 담은
-        DataFrame. total_amount 내림차순으로 정렬된다.
+        _named_agg_sql() 결과. total_amount 내림차순으로 정렬된다.
     """
-    filtered = build_filtered_query(csv_path, bounds)
-    query = f"""
-        SELECT region, category, payment_method,
-               SUM(amount) AS total_amount,
-               AVG(amount) AS avg_amount,
-               COUNT(amount) AS item_count
-        FROM ({filtered}) t
-        GROUP BY region, category, payment_method
-        ORDER BY total_amount DESC
-    """
-    return duckdb.sql(query).df()
+    return _named_agg_sql(csv_path, bounds, ["region", "category", "payment_method"])
 
 
 def agg_monthly_trend(csv_path: Path, bounds: dict):

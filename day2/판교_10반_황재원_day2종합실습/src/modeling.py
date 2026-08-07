@@ -69,7 +69,7 @@ def _build_preprocessor() -> ColumnTransformer:
 
 def run_regression_pipeline(
     df: pd.DataFrame, model_path: Path, out: Tee
-) -> dict[str, float]:
+) -> dict[str, float | str]:
     """급여(ConvertedCompYearly)를 예측하는 회귀 Pipeline을 학습·평가·저장한다.
 
     Args:
@@ -117,7 +117,7 @@ def run_regression_pipeline(
 
 def run_classification_pipeline(
     df: pd.DataFrame, model_path: Path, out: Tee
-) -> dict[str, float]:
+) -> dict[str, float | str]:
     """급여가 중앙값을 넘는지(고액 여부)를 예측하는 분류 Pipeline을 학습·평가·저장한다.
 
     Args:
@@ -174,7 +174,7 @@ def run_classification_pipeline(
 
 def run_model_pipelines(
     df: pd.DataFrame, models_dir: Path, log_path: Path
-) -> dict[str, dict[str, float]]:
+) -> dict[str, dict[str, float | str]]:
     """회귀·분류 Pipeline을 순서대로 학습·평가·저장한다.
 
     Args:

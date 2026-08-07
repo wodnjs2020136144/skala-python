@@ -156,13 +156,16 @@ def main() -> None:
 
     # Step 5: 범주형 변수별 급여 중앙값·분포 비교 (Pandas + Polars 이중 수행 및 교차검증)
     run_categorical_group_comparison(clean_df, LOG_DIR / "step5_categorical_groups.txt")
-    pandas_remote_medians = clean_df.groupby("RemoteWork")[TARGET_COL].median().to_dict()
+    pandas_remote_medians: dict[str, float] = {
+        str(group): float(median)
+        for group, median in clean_df.groupby("RemoteWork")[TARGET_COL].median().items()
+    }
     polars_group_result = run_salary_group_comparison_polars(
         polars_df,
         prep_stats["lower_bound"],
         prep_stats["upper_bound"],
         pandas_remote_medians,
-        prep_stats["n_final"],
+        int(prep_stats["n_final"]),
         LOG_DIR / "step5_categorical_groups_polars.txt",
     )
 
@@ -181,7 +184,7 @@ def main() -> None:
     # Step 9: Pipeline 모델 학습·평가·저장
     model_results = run_model_pipelines(model_df, MODELS_DIR, LOG_DIR / "step9_ml_pipeline.txt")
     for result in model_results.values():
-        result["model_path"] = str(Path(result["model_path"]).relative_to(PROJECT_ROOT))
+        result["model_path"] = str(Path(str(result["model_path"])).relative_to(PROJECT_ROOT))
 
     # Step 10: report.md 자동 생성
     generate_report(

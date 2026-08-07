@@ -62,3 +62,22 @@ def load_cleaned_sales(csv_path: Path = CSV_PATH, verbose: bool = False) -> pd.D
     df, _clean_stats = load_and_clean(csv_path, verbose=verbose)
     df, _outlier_stats = remove_outliers_iqr(df, verbose=verbose)
     return df
+
+
+def load_region_category_summary(csv_path: Path = CSV_PATH, verbose: bool = False) -> pd.DataFrame:
+    """practice3의 region x category Named Aggregation 함수를 재사용해 집계 결과를 얻는다.
+
+    Args:
+        csv_path: 원본 CSV 파일 경로.
+        verbose: True면 practice3 파이프라인의 단계별 통계를 출력한다.
+
+    Returns:
+        region, category, total_amount, avg_amount, item_count 컬럼을 가진
+        DataFrame. total_amount 내림차순으로 정렬된다.
+    """
+    if str(PRACTICE3_DIR) not in sys.path:
+        sys.path.insert(0, str(PRACTICE3_DIR))
+    from step3_pandas_pipeline import agg_region_category
+
+    df = load_cleaned_sales(csv_path, verbose=verbose)
+    return agg_region_category(df)

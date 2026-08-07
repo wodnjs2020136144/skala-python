@@ -1,0 +1,16 @@
+[결측 제거] 1000000행 -> 977140행 (제거 22860행)
+  - region: 10000건 결측
+  - category: 8000건 결측
+  - amount: 5000건 결측
+[IQR 이상치 제거] Q1=757318.5, Q3=3928969.0, IQR=3171650.5, 허용범위=[-4000157.2, 8686444.8]
+  977140행 -> 956363행 (제거 20777행)
+
+[집계 결과] 64개 region x category 조합
+region category  total_amount   avg_amount  item_count
+    서울       의류  7.499275e+10 2.495267e+06       30054
+    서울       식품  7.488971e+10 2.487782e+06       30103
+    서울       도서  7.446125e+10 2.486019e+06       29952
+    서울       뷰티  7.419851e+10 2.475842e+06       29969
+    서울      스포츠  7.386444e+10 2.467412e+06       29936
+
+[저장 완료] /Users/hwangjaewon/skala-workspace/skala-python/day2/practice4/outputs/sales_interactive.html

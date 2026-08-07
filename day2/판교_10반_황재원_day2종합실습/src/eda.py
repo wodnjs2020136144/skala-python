@@ -1,7 +1,7 @@
 """원본/정제 데이터 EDA, 기술통계, 상관분석, 그룹 비교.
 
-Step 1(원본 데이터 EDA)을 우선 구현한다. Step 3~5(정제 데이터 EDA, 상관관계,
-범주형 그룹 비교)는 정제 파이프라인(preprocessing.py) 확정 후 이어서 추가한다.
+Step 1(원본 데이터 EDA), Step 3(정제 데이터 EDA), Step 4(상관관계 분석),
+Step 5(범주형 그룹 비교)를 구현한다.
 """
 
 from pathlib import Path

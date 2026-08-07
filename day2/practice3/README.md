@@ -1,5 +1,8 @@
 # Day2 Practice3 — Pandas / Polars / DuckDB 성능 비교
 
+**작성자**: 황재원 (P345)
+**작성일**: 2026-08-07
+
 ## 개요
 
 `sales_100k.csv`(매출 데이터)를 대상으로 Pandas, Polars(Lazy API), DuckDB(SQL) 세 데이터

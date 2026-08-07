@@ -17,14 +17,9 @@
 
 ## Step4 — sklearn Pipeline 구축·저장
 
-**설계 결정 — 피처에서 amount 제외**: 참고했던 가이드 md 문서에는 `X = df[['region','category','amount']]`,
-`y = (amount > mean(amount))`라는 컬럼 구성의 예시 코드가 실려 있었다. 이 예시 코드는 실제 실습
-PDF의 지시사항이 아니라 가이드 md 문서를 만드는 과정에서 덧붙여진 참고용 코드였다. 이 컬럼 구성을
-그대로 가져다 쓰면 타깃을 만드는 데 쓴 `amount` 컬럼이 피처에도 그대로 들어가 모델이 사실상 자기
-자신을 맞히는 데이터 누수가 생기므로, 실제 데이터로 Pipeline을 구현하면서 이 부분을 그대로 따르지
-않고 직접 설계했다.
-
-**결정**: 타깃(`high_value_order = amount > 평균`)은 유지하되, 피처에서는 `amount`를 제외하고
+**설계 결정 — 피처에서 amount 제외**: 타깃(`high_value_order`)을 `amount > 평균`으로 정의하는데,
+`amount` 컬럼을 피처에도 그대로 포함시키면 모델이 타깃을 만드는 데 쓴 값을 그대로 입력받는 셈이 되어
+사실상 자기 자신을 맞히는 데이터 누수가 발생한다. 이를 피하기 위해 피처에서는 `amount`를 제외하고
 `region`/`category`/`payment_method`(범주형)와 `quantity`/`unit_price`/`customer_age`(수치형)를
 사용하도록 설계했다. "주문 규모·가격·고객 속성으로 고액 주문을 예측"하는 현실적인 분류 문제가 됐다.
 

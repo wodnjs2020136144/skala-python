@@ -45,6 +45,16 @@
 
 각 단계의 실행 로그는 `outputs/`에 텍스트로도 남아 있다. 진행 중 발생한 이슈는 `TROUBLESHOOTING.md`에 정리했다.
 
+### 최종 제출 스크립트
+
+`판교_10반_황재원.py`는 Step2~Step6의 로직을 하나로 합친 최종 스크립트로, 단독 실행만으로 프로파일링 →
+Pandas/Polars/DuckDB 3엔진 파이프라인 → 교차 검증 → 성능 벤치마크까지 전 과정을 순서대로 수행한다.
+
+```bash
+source .venv/bin/activate
+python day2/practice3/판교_10반_황재원.py
+```
+
 ### 단계별 실행 캡처
 
 **Step1 — 환경 준비**: `.venv`에서 pandas/polars/duckdb import 확인

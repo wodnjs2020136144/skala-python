@@ -1,0 +1,14 @@
+[벤치마크 조건] number=10 (세 엔진 동일 반복 횟수)
+측정 중...
+
+=======================================================
+[Practice3 엔진 성능 비교 벤치마크]
+=======================================================
+  - Pandas      : 660.26 ms
+  - Polars Lazy : 264.71 ms
+  - DuckDB SQL  : 947.97 ms
+=======================================================
+
+가장 빠른 엔진: Polars Lazy (264.71 ms)
+
+[저장 완료] /Users/hwangjaewon/skala-workspace/skala-python/day2/practice3/outputs/benchmark_result.md

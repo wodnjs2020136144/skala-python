@@ -1,0 +1,31 @@
+[파일 경로] /Users/hwangjaewon/skala-workspace/skala-python/sales_100k.csv
+[전체 행/열] 1000000행 x 11열
+
+[df.info()]
+<class 'pandas.DataFrame'>
+RangeIndex: 1000000 entries, 0 to 999999
+Data columns (total 11 columns):
+ #   Column           Non-Null Count    Dtype  
+---  ------           --------------    -----  
+ 0   order_id         1000000 non-null  int64  
+ 1   order_date       1000000 non-null  str    
+ 2   region           990000 non-null   str    
+ 3   category         992000 non-null   str    
+ 4   product_name     1000000 non-null  str    
+ 5   quantity         1000000 non-null  int64  
+ 6   unit_price       1000000 non-null  int64  
+ 7   payment_method   1000000 non-null  str    
+ 8   customer_age     1000000 non-null  int64  
+ 9   customer_gender  1000000 non-null  str    
+ 10  amount           995000 non-null   float64
+dtypes: float64(1), int64(4), str(6)
+memory usage: 124.7 MB
+
+[결측치 현황] (전체 1000000행 기준)
+          missing_count  missing_ratio(%)
+region            10000               1.0
+category           8000               0.8
+amount             5000               0.5
+
+[정합성 점검] amount ≈ quantity * unit_price (허용 오차 ±1.0)
+검증 대상: 995000행 / 불일치: 19874행 (1.997%)

@@ -5,6 +5,8 @@
 # 설명: sales_100k.csv 매출 데이터를 대상으로 결측 제거 -> IQR 이상치 제거 -> Named Aggregation을
 #       Pandas, Polars Lazy API, DuckDB SQL 세 엔진으로 동일하게 구현하고, 세 엔진의 집계 결과가
 #       일치하는지 교차 검증한 뒤 timeit(number=10)으로 처리 성능을 비교한다.
+# 변경내역:
+#   - 2026-08-07: 최초 작성 (Pandas/Polars/DuckDB 파이프라인 통합, 성능 벤치마크 포함)
 
 import timeit
 from pathlib import Path

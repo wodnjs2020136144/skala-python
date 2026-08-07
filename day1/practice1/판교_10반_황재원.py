@@ -3,6 +3,8 @@
 # 작업환경: Python 3.11.6, macOS, VSCode
 # 작성일: 2026-08-06
 # 설명: Python_Practice1_Data.json의 매출 데이터를 컴프리헨션, Counter, defaultdict, 제너레이터로 집계한다.
+# 변경내역:
+#   - 2026-08-06: 최초 작성
 
 import json
 import sys

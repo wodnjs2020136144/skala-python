@@ -4,6 +4,8 @@
 # 작성일: 2026-08-06
 # Python_Practice2_Data.json의 매출 데이터를 안전하게 로딩하고, Pydantic v2 스키마로 검증한 뒤
 # 정상 데이터와 결함 데이터를 분류하여 각각 CSV/JSON으로 저장한다.
+# 변경내역:
+#   - 2026-08-06: 최초 작성
 
 import csv
 import json

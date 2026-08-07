@@ -62,6 +62,18 @@
 
 ![Step5 Plotly 캡처](outputs/step5_plotly_run.png)
 
+### 최종 제출 스크립트
+
+`판교_10반_황재원.py`는 Step2~Step5의 로직을 하나로 합친 최종 스크립트다. practice3 코드에
+의존하지 않도록 결측 제거+IQR 이상치 제거 로직을 자체적으로 포함하며, 단독 실행만으로
+시각화 → 통계 검정 → Pipeline 학습/저장 → Plotly 차트까지 전 과정을 순서대로 수행한다.
+실행 결과(통계량, 정확도, 산출 파일)는 개별 step 스크립트 실행 결과와 완전히 동일함을 확인했다.
+
+```bash
+source .venv/bin/activate
+python day2/practice4/판교_10반_황재원.py
+```
+
 ## 통계 검정 결과
 
 | 검정 | 통계량 | p-value | 해석 |

@@ -17,13 +17,16 @@
 
 ## Step4 — sklearn Pipeline 구축·저장
 
-**이슈1 — 가이드 예시의 데이터 누수**: 참고했던 실습 가이드 예시는 `X = df[['region','category','amount']]`,
-`y = (amount > mean(amount))`로 두어, 타깃을 만드는 데 사용한 `amount` 컬럼을 그대로 피처에도
-포함시키는 데이터 누수 구조였다. 이 방식은 정확도가 사실상 자기 자신을 맞추는 것이라 의미가 없다.
+**설계 결정 — 피처에서 amount 제외**: 실습 가이드는 `ColumnTransformer`+`Pipeline` 코드 형태를
+보여주는 예시로 `X = df[['region','category','amount']]`, `y = (amount > mean(amount))`라는
+컬럼 구성을 들고 있었다. 가이드 코드는 API 사용법을 보여주는 참고 자료일 뿐 이 컬럼 구성을 그대로
+따르라는 의미는 아니지만, 이 구성을 그대로 가져다 쓰면 타깃을 만드는 데 쓴 `amount` 컬럼이 피처에도
+그대로 들어가 모델이 사실상 자기 자신을 맞히는 데이터 누수가 생긴다는 점은 실제 데이터로 구현하면서
+직접 고려해야 했다.
 
-**해결**: 타깃(`high_value_order = amount > 평균`)은 유지하되, 피처에서는 `amount`를 제외하고
+**결정**: 타깃(`high_value_order = amount > 평균`)은 유지하되, 피처에서는 `amount`를 제외하고
 `region`/`category`/`payment_method`(범주형)와 `quantity`/`unit_price`/`customer_age`(수치형)를
-사용하도록 재설계했다. "주문 규모·가격·고객 속성으로 고액 주문을 예측"하는 현실적인 분류 문제가 됐다.
+사용하도록 설계했다. "주문 규모·가격·고객 속성으로 고액 주문을 예측"하는 현실적인 분류 문제가 됐다.
 
 **이슈2 — 모델 파일 용량 폭증**: `RandomForestClassifier(n_estimators=100, random_state=42)`를
 트리 깊이 제한 없이 약 78만 행으로 학습시키자 `joblib.dump()` 결과 파일이 **약 500MB**까지
@@ -39,7 +42,7 @@
 
 ## 실습3 연계 설계 결정
 
-이미지로 공유된 "연계 Point"에 따라 실습4는 실습3의 IQR 정제 결과를 입력으로 사용해야 했다.
+"연계 Point"에 따라 실습4는 실습3의 IQR 정제 결과를 입력으로 사용해야 했다.
 실습3가 정제된 행 단위 DataFrame 자체를 파일로 저장해두지 않아(요약 집계만 저장), 아래와 같이
 역할을 나눴다.
 
@@ -97,6 +100,6 @@ VSCode가 저장소 루트(`skala-python`)를 워크스페이스로 열고 있�
 
 ## sklearn Pipeline 학습 데이터 결정
 
-이미지의 "연계 Point" 표는 `sales_100k.csv`(원본)를 Pipeline 학습 데이터 원본으로 명시하고 있어,
+"연계 Point"는 `sales_100k.csv`(원본)를 Pipeline 학습 데이터 원본으로 명시하고 있어,
 시각화·통계 검정과 달리 Pipeline은 IQR 이상치를 제거하지 않은 원본 데이터로 학습했다. 단, 피처로
 사용하는 컬럼(`region`/`category`/`amount`)의 결측 행만 제거해 모델 학습이 가능한 상태로 만들었다.

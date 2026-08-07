@@ -9,13 +9,14 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from matplotlib.axes import Axes
 
 from _common import ensure_output_dir, load_cleaned_sales
 
 NUMERIC_CORR_COLS = ["amount", "quantity", "unit_price", "customer_age"]
 
 
-def build_amount_histogram(ax: plt.Axes, df: pd.DataFrame) -> None:
+def build_amount_histogram(ax: Axes, df: pd.DataFrame) -> None:
     """매출액(amount) 분포를 히스토그램 + KDE로 그린다.
 
     Args:
@@ -27,7 +28,7 @@ def build_amount_histogram(ax: plt.Axes, df: pd.DataFrame) -> None:
     ax.set_xlabel("amount")
 
 
-def build_region_boxplot(ax: plt.Axes, df: pd.DataFrame) -> None:
+def build_region_boxplot(ax: Axes, df: pd.DataFrame) -> None:
     """지역(region)별 매출액 분포를 박스플롯으로 그린다.
 
     Args:
@@ -40,7 +41,7 @@ def build_region_boxplot(ax: plt.Axes, df: pd.DataFrame) -> None:
     ax.tick_params(axis="x", rotation=30)
 
 
-def build_monthly_trend_line(ax: plt.Axes, df: pd.DataFrame) -> None:
+def build_monthly_trend_line(ax: Axes, df: pd.DataFrame) -> None:
     """order_date에서 연-월을 추출해 월별 매출 추이를 라인차트로 그린다.
 
     실제 데이터에만 존재하는 order_date 컬럼을 활용해, practice3의 월별 집계와
@@ -62,7 +63,7 @@ def build_monthly_trend_line(ax: plt.Axes, df: pd.DataFrame) -> None:
     ax.tick_params(axis="x", rotation=60)
 
 
-def build_correlation_heatmap(ax: plt.Axes, df: pd.DataFrame) -> None:
+def build_correlation_heatmap(ax: Axes, df: pd.DataFrame) -> None:
     """수치형 변수(amount/quantity/unit_price/customer_age) 간 상관관계를 히트맵으로 그린다.
 
     Args:

@@ -8,11 +8,12 @@ from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 from _common import ensure_output_dir, load_region_category_summary
 
 
-def build_region_category_chart(agg_df: pd.DataFrame) -> px.bar:
+def build_region_category_chart(agg_df: pd.DataFrame) -> go.Figure:
     """region x category 매출 합계를 그룹 바 차트로 그린다.
 
     Args:
@@ -28,7 +29,7 @@ def build_region_category_chart(agg_df: pd.DataFrame) -> px.bar:
     )
 
 
-def save_chart_html(fig: px.bar, output_path: Path) -> Path:
+def save_chart_html(fig: go.Figure, output_path: Path) -> Path:
     """Plotly Figure를 인터랙티브 HTML 파일로 저장한다.
 
     Args:

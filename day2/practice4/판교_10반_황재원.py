@@ -14,7 +14,9 @@ import joblib
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import seaborn as sns
+from matplotlib.axes import Axes
 from scipy import stats
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
@@ -118,7 +120,7 @@ def get_cleaned_sales(csv_path: Path, verbose: bool = False) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # Step2: EDA 시각화 4종 (2x2 서브플롯)
 # ---------------------------------------------------------------------------
-def build_amount_histogram(ax: plt.Axes, df: pd.DataFrame) -> None:
+def build_amount_histogram(ax: Axes, df: pd.DataFrame) -> None:
     """매출액(amount) 분포를 히스토그램 + KDE로 그린다.
 
     Args:
@@ -130,7 +132,7 @@ def build_amount_histogram(ax: plt.Axes, df: pd.DataFrame) -> None:
     ax.set_xlabel("amount")
 
 
-def build_region_boxplot(ax: plt.Axes, df: pd.DataFrame) -> None:
+def build_region_boxplot(ax: Axes, df: pd.DataFrame) -> None:
     """지역(region)별 매출액 분포를 박스플롯으로 그린다.
 
     Args:
@@ -143,7 +145,7 @@ def build_region_boxplot(ax: plt.Axes, df: pd.DataFrame) -> None:
     ax.tick_params(axis="x", rotation=30)
 
 
-def build_monthly_trend_line(ax: plt.Axes, df: pd.DataFrame) -> None:
+def build_monthly_trend_line(ax: Axes, df: pd.DataFrame) -> None:
     """order_date에서 연-월을 추출해 월별 매출 추이를 라인차트로 그린다.
 
     Args:
@@ -162,7 +164,7 @@ def build_monthly_trend_line(ax: plt.Axes, df: pd.DataFrame) -> None:
     ax.tick_params(axis="x", rotation=60)
 
 
-def build_correlation_heatmap(ax: plt.Axes, df: pd.DataFrame) -> None:
+def build_correlation_heatmap(ax: Axes, df: pd.DataFrame) -> None:
     """수치형 변수(amount/quantity/unit_price/customer_age) 간 상관관계를 히트맵으로 그린다.
 
     Args:
@@ -414,7 +416,7 @@ def agg_region_category(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def build_region_category_chart(agg_df: pd.DataFrame) -> px.bar:
+def build_region_category_chart(agg_df: pd.DataFrame) -> go.Figure:
     """region x category 매출 합계를 그룹 바 차트로 그린다.
 
     Args:
@@ -430,7 +432,7 @@ def build_region_category_chart(agg_df: pd.DataFrame) -> px.bar:
     )
 
 
-def save_chart_html(fig: px.bar, output_path: Path) -> Path:
+def save_chart_html(fig: go.Figure, output_path: Path) -> Path:
     """Plotly Figure를 인터랙티브 HTML 파일로 저장한다.
 
     Args:

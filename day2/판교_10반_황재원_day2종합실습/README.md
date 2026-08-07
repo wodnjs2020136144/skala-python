@@ -54,16 +54,30 @@ source .venv/bin/activate
 python day2/판교_10반_황재원_day2종합실습/main.py
 ```
 
-이 폴더만 따로 받은 경우(예: 제출용 zip)에는 이 폴더 안의 `requirements.txt`로 독립 실행할 수 있다.
-루트 `requirements.txt`(전체 강의 환경 pip freeze)에서 이 프로젝트가 실제로 쓰는 패키지만 추린
-것으로, 새 가상환경에 설치 후 `main.py`가 동일한 결과를 내는지 별도로 검증했다.
+이 폴더만 따로 받은 경우(예: 제출용 zip을 풀어서 이 폴더 자체가 최상위인 경우)에는 이 폴더 안의
+`requirements.txt`로 독립 실행할 수 있다. 루트 `requirements.txt`(전체 강의 환경 pip freeze)에서
+이 프로젝트가 실제로 쓰는 패키지만 추린 것으로, 새 가상환경에 설치 후 `main.py`가 동일한 결과를
+내는지 별도로 검증했다.
 
 ```bash
-cd day2/판교_10반_황재원_day2종합실습
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+# 1. 가상환경 생성
+python3.11 -m venv .venv
+
+# 2. 가상환경 활성화 (운영체제에 맞는 명령어 하나만 선택)
+source .venv/bin/activate      # Mac / Linux 환경
+.venv\Scripts\activate.bat      # Windows(cmd)
+.venv\Scripts\Activate.ps1     # Windows(powershell)
+
+# 3. 패키지 목록 설치
+python -m pip install -r requirements.txt
+
+# 4. 실행
 python main.py
 ```
+
+`pip install ...`처럼 `pip`를 직접 호출하면 쉘에 걸린 alias나 PATH 우선순위 때문에 방금 만든
+가상환경이 아닌 다른 Python에 설치될 수 있다(`pip aliased to ...` 같은 메시지가 뜨면 이 경우다).
+`python -m pip install ...`로 실행 중인 `python`에 확실히 연결된 pip를 쓰면 이 문제를 피할 수 있다.
 
 ## 단계별 실행 캡처
 

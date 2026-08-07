@@ -1,12 +1,19 @@
 """sales_100k.csv 원본으로 고액 주문 여부를 예측하는 sklearn Pipeline을 구축한다.
 
-수치형(quantity/unit_price/customer_age) 스케일링 + 범주형(region/category/
-payment_method) 원핫인코딩을 ColumnTransformer로 묶고, RandomForestClassifier와
-함께 단일 Pipeline으로 구성해 학습·평가한 뒤 joblib으로 저장한다.
+수치형(customer_age) 스케일링 + 범주형(region/category/payment_method) 원핫인코딩을
+ColumnTransformer로 묶고, RandomForestClassifier와 함께 단일 Pipeline으로 구성해
+학습·평가한 뒤 joblib으로 저장한다.
 
-타깃(high_value_order)은 amount 평균 초과 여부로 정의하되, 타깃을 만든 컬럼인
-amount 자체는 피처에서 제외해 "타깃과 동일한 정보가 피처에 그대로 들어가는"
-데이터 누수를 피한다.
+타깃(high_value_order)은 amount 평균 초과 여부로 정의한다. amount 자체는 물론
+quantity/unit_price도 피처에서 제외한다 — amount ≈ quantity * unit_price
+(Step2 프로파일링에서 확인한 불일치율 1.997%)이라 이 둘을 피처에 남기면 모델이
+region/category 같은 실제 신호가 아니라 "곱셈"만 재현하게 되는 데이터 누수가
+생기기 때문이다. 실제로 quantity/unit_price만으로 학습한 모델은 정확도 0.988을
+내지만, 이는 곱셈 관계를 외운 것일 뿐 아무 것도 "예측"한 게 아니다. 이 둘을 뺀
+채 region/category/payment_method/customer_age만으로 학습하면 정확도가
+베이스라인(다수 클래스, 약 0.654)과 비슷한 약 0.65로 떨어지는데, 이는 모델
+결함이 아니라 "이 데이터의 인구통계·범주형 정보만으로는 고액 주문을 예측하기
+어렵다"는 정직한 결과다.
 """
 
 from pathlib import Path
@@ -22,7 +29,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from _common import CSV_PATH, ensure_csv_exists, ensure_output_dir
 
-NUMERIC_FEATURES = ["quantity", "unit_price", "customer_age"]
+NUMERIC_FEATURES = ["customer_age"]
 CATEGORICAL_FEATURES = ["region", "category", "payment_method"]
 REQUIRED_COLS = ["region", "category", "amount"]
 
@@ -32,8 +39,9 @@ def load_and_prepare_data(csv_path: Path, verbose: bool = False) -> tuple[pd.Dat
 
     IQR 이상치는 제거하지 않는다("Pipeline의 학습 데이터 원본"은 sales_100k.csv
     원본을 그대로 사용한다는 실습 요구사항에 따름). amount 평균을 기준으로
-    고액 주문 여부(high_value_order)를 타깃으로 만들고, amount 자체는
-    데이터 누수를 피하기 위해 피처에서 제외한다.
+    고액 주문 여부(high_value_order)를 타깃으로 만들고, amount 자체와 amount를
+    산술적으로 재현하는 quantity/unit_price는 데이터 누수를 피하기 위해 피처에서
+    제외한다(모듈 docstring 참고).
 
     Args:
         csv_path: 원본 CSV 파일 경로.
@@ -116,7 +124,9 @@ def train_and_evaluate(X: pd.DataFrame, y: pd.Series, verbose: bool = False) -> 
 
     accuracy = pipeline.score(X_test, y_test)
     y_pred = pipeline.predict(X_test)
-    report = classification_report(y_test, y_pred)
+    # zero_division=0: 신호가 약해 모델이 소수 클래스(1)를 전혀 예측하지 못할 수 있는데,
+    # 이때 기본 동작인 UndefinedMetricWarning 대신 해당 지표를 0으로 조용히 채운다.
+    report = classification_report(y_test, y_pred, zero_division=0)
 
     stats = {"accuracy": accuracy, "report": report, "n_train": len(X_train), "n_test": len(X_test)}
     if verbose:
@@ -149,8 +159,8 @@ def save_model(pipeline: Pipeline, output_path: Path) -> Path:
 
 def main() -> None:
     """데이터 준비 -> Pipeline 학습/평가 -> joblib 저장을 순서대로 수행한다."""
-    X, y, prep_stats = load_and_prepare_data(CSV_PATH, verbose=True)
-    pipeline, eval_stats = train_and_evaluate(X, y, verbose=True)
+    X, y, _prep_stats = load_and_prepare_data(CSV_PATH, verbose=True)
+    pipeline, _eval_stats = train_and_evaluate(X, y, verbose=True)
 
     output_dir = ensure_output_dir()
     model_path = output_dir / "sales_pipeline_model.joblib"

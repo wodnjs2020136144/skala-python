@@ -11,6 +11,8 @@
 #   - 2026-08-07: 최초 작성 (Step2~5 통합 — EDA 시각화, 통계 검정, sklearn Pipeline, Plotly 차트)
 #   - 2026-08-07: 함수 타입힌트 정리 (matplotlib.axes.Axes, plotly.graph_objects.Figure)
 #   - 2026-08-07: sns.histplot 인자 형식 수정 (data=df, x="amount")
+#   - 2026-08-07: CSV 경로를 단독 실행 환경에서도 찾도록 개선
+#   - 2026-08-07: Pipeline 피처에서 quantity/unit_price 제거 (amount와의 산술적 누수 방지)
 
 from pathlib import Path
 
@@ -56,7 +58,7 @@ CSV_PATH = _resolve_csv_path()
 OUTPUT_DIR = Path(__file__).resolve().parent / "outputs"
 REQUIRED_COLS = ["region", "category", "amount"]
 NUMERIC_CORR_COLS = ["amount", "quantity", "unit_price", "customer_age"]
-NUMERIC_FEATURES = ["quantity", "unit_price", "customer_age"]
+NUMERIC_FEATURES = ["customer_age"]
 CATEGORICAL_FEATURES = ["region", "category", "payment_method"]
 SIGNIFICANCE_LEVEL = 0.05
 
@@ -311,7 +313,13 @@ def prepare_ml_data(csv_path: Path, verbose: bool = False) -> tuple[pd.DataFrame
 
     IQR 이상치는 제거하지 않는다(Pipeline 학습 데이터는 sales_100k.csv 원본을
     그대로 사용). amount 평균을 기준으로 고액 주문 여부(high_value_order)를
-    타깃으로 만들고, amount 자체는 데이터 누수를 피하기 위해 피처에서 제외한다.
+    타깃으로 만든다. amount 자체와, amount를 산술적으로 재현하는
+    quantity/unit_price(amount ≈ quantity * unit_price, 불일치율 1.997%)는
+    데이터 누수를 피하기 위해 피처에서 제외한다. 실제로 quantity/unit_price만
+    남겨 학습하면 정확도가 0.988까지 나오지만 이는 곱셈을 외운 것일 뿐이고,
+    region/category/payment_method/customer_age만으로 학습하면 정확도가
+    베이스라인(약 0.654) 수준인 약 0.65로 떨어진다 — 이 데이터의 인구통계·범주형
+    정보만으로는 고액 주문을 예측하기 어렵다는 정직한 결과다.
 
     Args:
         csv_path: 원본 CSV 파일 경로.
@@ -387,7 +395,9 @@ def train_and_evaluate_ml_pipeline(
 
     accuracy = pipeline.score(X_test, y_test)
     y_pred = pipeline.predict(X_test)
-    report = classification_report(y_test, y_pred)
+    # zero_division=0: 신호가 약해 모델이 소수 클래스(1)를 전혀 예측하지 못할 수 있는데,
+    # 이때 기본 동작인 UndefinedMetricWarning 대신 해당 지표를 0으로 조용히 채운다.
+    report = classification_report(y_test, y_pred, zero_division=0)
 
     stats_dict = {"accuracy": accuracy, "report": report, "n_train": len(X_train), "n_test": len(X_test)}
     if verbose:

@@ -17,22 +17,42 @@
 
 ## Step4 — sklearn Pipeline 구축·저장
 
-**설계 결정 — 피처에서 amount 제외**: 타깃(`high_value_order`)을 `amount > 평균`으로 정의하는데,
+**설계 결정 1 — 피처에서 amount 제외**: 타깃(`high_value_order`)을 `amount > 평균`으로 정의하는데,
 `amount` 컬럼을 피처에도 그대로 포함시키면 모델이 타깃을 만드는 데 쓴 값을 그대로 입력받는 셈이 되어
-사실상 자기 자신을 맞히는 데이터 누수가 발생한다. 이를 피하기 위해 피처에서는 `amount`를 제외하고
+사실상 자기 자신을 맞히는 데이터 누수가 발생한다. 이를 피하기 위해 피처에서 `amount`를 제외하고
 `region`/`category`/`payment_method`(범주형)와 `quantity`/`unit_price`/`customer_age`(수치형)를
-사용하도록 설계했다. "주문 규모·가격·고객 속성으로 고액 주문을 예측"하는 현실적인 분류 문제가 됐다.
+사용하도록 1차 설계했다.
 
-**이슈2 — 모델 파일 용량 폭증**: `RandomForestClassifier(n_estimators=100, random_state=42)`를
+**설계 결정 2 — quantity/unit_price도 추가로 제외 (숨은 누수)**: 리뷰에서 "피처 컬럼 선택이
+의미가 없다"는 지적을 받고 검증한 결과, `amount`만 뺀 1차 설계에도 같은 문제가 남아 있었다.
+`amount ≈ quantity * unit_price`(Step2 프로파일링에서 확인한 불일치율 1.997%)라서, `quantity`와
+`unit_price`를 피처로 남겨두면 모델이 region/category 같은 실제 신호가 아니라 곱셈 관계를
+재현할 뿐이었다. 직접 검증한 수치(`random_state=42` 동일 분할 기준):
+
+| 구성 | 정확도 |
+|---|---|
+| 모델 없이 `quantity * unit_price > 평균`만으로 타깃 재현 | 0.9887 |
+| `quantity`+`unit_price`만 피처로 RandomForest | 0.9881 |
+| 기존 Pipeline (quantity/unit_price 포함) | 0.9831 |
+| `region`/`category`/`payment_method`/`customer_age`만 피처로 (quantity·unit_price 제외) | 0.6545 |
+| 베이스라인 (다수 클래스로만 예측) | 0.6544 |
+
+`payment_method`·`customer_gender`처럼 amount와 무관한 타깃으로 바꾸는 대안도 검토했지만, 이
+데이터셋에서는 region/category/quantity/unit_price/customer_age와의 상관계수가 0.0001 수준(사실상
+0)이라 어떤 타깃으로 바꿔도 학습할 신호가 없었다. 결국 `quantity`/`unit_price`를 피처에서 제거하는
+쪽으로 확정했다. 정확도가 베이스라인 수준(0.65)까지 떨어지고 분류 리포트상 소수 클래스(1)를 전혀
+예측하지 못하지만, 이는 모델 결함이 아니라 "이 데이터의 인구통계·범주형 정보만으로는 고액 주문을
+예측하기 어렵다"는 정직한 결과다.
+
+![Step4 실행 결과](outputs/step4_ml_run.png)
+
+**이슈3 — 모델 파일 용량 폭증**: `RandomForestClassifier(n_estimators=100, random_state=42)`를
 트리 깊이 제한 없이 약 78만 행으로 학습시키자 `joblib.dump()` 결과 파일이 **약 500MB**까지
 커졌다(GitHub 저장소에 커밋하기엔 지나치게 큰 크기이며, 100MB를 넘으면 push 자체가 차단된다).
 학습 시간도 약 7분으로 길었다.
 
-![Step4 실행 결과 (개선 후)](outputs/step4_ml_run.png)
-
 **해결**:
-- `max_depth=15`, `min_samples_leaf=50`으로 트리 깊이를 제한해 파일 크기를 **37MB**로 줄였다.
-  정확도는 0.9875 → 0.9831로 0.004%p만 낮아져 실질적인 손실은 거의 없었다.
+- `max_depth=15`, `min_samples_leaf=50`으로 트리 깊이를 제한해 파일 크기를 **42MB**로 줄였다.
 - `n_jobs=-1`로 CPU 코어를 모두 활용하도록 해 학습 시간을 약 7분에서 약 1분대로 단축했다.
 
 ## 실습3 연계 설계 결정

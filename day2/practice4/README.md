@@ -83,12 +83,17 @@ python day2/practice4/판교_10반_황재원.py
 
 ## sklearn Pipeline 결과
 
-- **피처**: `region`/`category`/`payment_method`(OneHotEncoder), `quantity`/`unit_price`/`customer_age`(StandardScaler)
-- **타깃**: `high_value_order` = `amount > 평균(amount)` (양성 비율 34.6%). 타깃 산정에 쓴 `amount`
-  자체는 데이터 누수 방지를 위해 피처에서 제외했다.
+- **피처**: `region`/`category`/`payment_method`(OneHotEncoder), `customer_age`(StandardScaler)
+- **타깃**: `high_value_order` = `amount > 평균(amount)` (양성 비율 34.6%). `amount`는 물론
+  `amount`를 산술적으로 재현하는 `quantity`/`unit_price`(`amount ≈ quantity * unit_price`,
+  불일치율 1.997%)도 데이터 누수 방지를 위해 피처에서 제외했다.
 - **모델**: `RandomForestClassifier(n_estimators=100, max_depth=15, min_samples_leaf=50)`
-- **정확도**: 0.9831 (test 195,428건 기준)
-- **저장 파일**: `outputs/sales_pipeline_model.joblib` (37MB. 트리 깊이 제한 전에는 약 500MB였음 —
+- **정확도**: 0.6545 (test 195,428건 기준, 베이스라인인 다수 클래스 비율 0.6544와 거의 동일).
+  분류 리포트상 소수 클래스(1)의 precision/recall/f1이 모두 0으로, 모델이 모든 샘플을 다수
+  클래스로 예측한다. 이는 결함이 아니라 **정직한 결과**다 — `region`/`category`/`payment_method`/
+  `customer_age`만으로는 고액 주문 여부를 예측할 유의미한 신호가 이 데이터셋에 없다는 뜻이며,
+  검증 경위는 TROUBLESHOOTING.md에 정리했다.
+- **저장 파일**: `outputs/sales_pipeline_model.joblib` (42MB. 트리 깊이 제한 전에는 약 500MB였음 —
   자세한 경위는 TROUBLESHOOTING.md 참고)
 
 ## Plotly 인터랙티브 차트
@@ -112,5 +117,7 @@ HTML이다. 브라우저로 직접 열어 지역/카테고리별 막대에 마�
 
 practice3의 정제 파이프라인을 그대로 재사용해 시각화·통계 검정을 수행함으로써 두 실습 간 데이터
 일관성을 확보했다. 통계적으로 서울-부산 매출 평균 차이는 유의하지 않았지만 지역-카테고리 조합은
-유의미한 연관성을 보였다. sklearn Pipeline은 타깃(amount 기준)과 피처가 겹치지 않도록 직접
-설계했고, 트리 깊이를 제한해 실용적인 크기(37MB)의 모델 파일을 얻었다.
+유의미한 연관성을 보였다. sklearn Pipeline은 타깃(amount 기준)과 산술적으로 얽힌 피처
+(amount 자체와 quantity/unit_price)를 모두 제외하도록 설계했고, 그 결과 정확도가 베이스라인
+수준(0.65)으로 나타났다 — region/category/payment_method/customer_age만으로는 고액 주문을
+예측하기 어렵다는 정직한 결론이다. 트리 깊이도 제한해 실용적인 크기(42MB)의 모델 파일을 얻었다.

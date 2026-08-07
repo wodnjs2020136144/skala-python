@@ -3,16 +3,16 @@
 [타깃 분포] 양성(1) 비율=0.346
 
 [학습/평가] train=781712건, test=195428건
-[정확도] 0.9831
+[정확도] 0.6545
 [분류 리포트]
               precision    recall  f1-score   support
 
-           0       0.98      1.00      0.99    127898
-           1       0.99      0.96      0.98     67530
+           0       0.65      1.00      0.79    127898
+           1       0.00      0.00      0.00     67530
 
-    accuracy                           0.98    195428
-   macro avg       0.98      0.98      0.98    195428
-weighted avg       0.98      0.98      0.98    195428
+    accuracy                           0.65    195428
+   macro avg       0.33      0.50      0.40    195428
+weighted avg       0.43      0.65      0.52    195428
 
 
 [저장 완료] /Users/hwangjaewon/skala-workspace/skala-python/day2/practice4/outputs/sales_pipeline_model.joblib

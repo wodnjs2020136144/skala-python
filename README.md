@@ -68,4 +68,8 @@ Open-Meteo/Countries.dev/ip-api 등 외부 API를 `asyncio`+`httpx`로 동시 �
 ### Day2 Practice4 — 시각화 · 통계 검정 · sklearn Pipeline · Plotly
 Practice3의 정제 데이터를 입력으로 2×2 서브플롯 EDA 시각화, t-test/카이제곱 통계 검정을 수행하고,
 `ColumnTransformer`+`RandomForestClassifier` Pipeline을 학습·저장한 뒤 Plotly 인터랙티브 차트를
-생성한다.
+생성한다. Pipeline 피처에 `quantity`/`unit_price`를 남겨두면 `amount ≈ quantity × unit_price`
+관계 때문에 사실상 산술 연산을 재현하는 데이터 누수가 생긴다는 점을 검증으로 확인해 제외했고,
+그 결과 정확도는 베이스라인 수준(0.65)으로 낮아지지만 이는 결함이 아니라 "인구통계·범주형
+정보만으로는 고액 주문을 예측하기 어렵다"는 정직한 결과다. 최종 스크립트는 단독 파일로
+분리해 실행해도(경로 하드코딩 없이) 동일하게 동작함을 검증했다.

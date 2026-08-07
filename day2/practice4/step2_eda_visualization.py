@@ -23,7 +23,7 @@ def build_amount_histogram(ax: Axes, df: pd.DataFrame) -> None:
         ax: 그릴 대상 Axes.
         df: amount 컬럼을 포함한 DataFrame.
     """
-    sns.histplot(df["amount"], kde=True, ax=ax, color="skyblue")
+    sns.histplot(data=df, x="amount", kde=True, ax=ax, color="skyblue")
     ax.set_title("1) 매출액 분포 (Histogram + KDE)")
     ax.set_xlabel("amount")
 

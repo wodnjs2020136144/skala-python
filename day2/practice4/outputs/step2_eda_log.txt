@@ -1,0 +1,9 @@
+[결측 제거] 1000000행 -> 977140행 (제거 22860행)
+  - region: 10000건 결측
+  - category: 8000건 결측
+  - amount: 5000건 결측
+[IQR 이상치 제거] Q1=757318.5, Q3=3928969.0, IQR=3171650.5, 허용범위=[-4000157.2, 8686444.8]
+  977140행 -> 956363행 (제거 20777행)
+
+[시각화 대상] 956363행 (결측 제거 + IQR 이상치 제거 완료)
+[저장 완료] /Users/hwangjaewon/skala-workspace/skala-python/day2/practice4/outputs/eda_2x2_subplots.png

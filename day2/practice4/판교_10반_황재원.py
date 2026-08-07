@@ -7,6 +7,10 @@
 #       ColumnTransformer+RandomForestClassifier Pipeline 학습/저장, Plotly 인터랙티브 차트
 #       생성까지 수행한다. Day2 Practice3의 결측 제거+IQR 로직과 동일한 기준을 이 파일 안에
 #       독립적으로 구현해, 다른 디렉토리에 의존하지 않고 단독 실행 가능하도록 했다.
+# 변경내역:
+#   - 2026-08-07: 최초 작성 (Step2~5 통합 — EDA 시각화, 통계 검정, sklearn Pipeline, Plotly 차트)
+#   - 2026-08-07: 함수 타입힌트 정리 (matplotlib.axes.Axes, plotly.graph_objects.Figure)
+#   - 2026-08-07: sns.histplot 인자 형식 수정 (data=df, x="amount")
 
 from pathlib import Path
 

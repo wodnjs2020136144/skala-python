@@ -96,6 +96,8 @@ python day2/practice4/판교_10반_황재원.py
 `outputs/sales_interactive.html`은 region x category 매출 합계를 그룹 바 차트로 보여주는 인터랙티브
 HTML이다. 브라우저로 직접 열어 지역/카테고리별 막대에 마우스를 올리면 수치를 확인할 수 있다.
 
+![Plotly 인터랙티브 차트 캡처](outputs/sales_interactive_preview.png)
+
 ## Checkpoint 대조
 
 | 검증 항목 | 결과 |

@@ -1,0 +1,15 @@
+=== Step 4: 급여와 수치형 변수의 상관관계 분석 ===
+
+[상관계수 행렬]
+                     ConvertedCompYearly  YearsCode  YearsCodePro   WorkExp    JobSat
+ConvertedCompYearly             1.000000   0.398301      0.400246  0.408438  0.075244
+YearsCode                       0.398301   1.000000      0.915282  0.865925  0.092387
+YearsCodePro                    0.400246   0.915282      1.000000  0.923750  0.099237
+WorkExp                         0.408438   0.865925      0.923750  1.000000  0.092493
+JobSat                          0.075244   0.092387      0.099237  0.092493  1.000000
+
+[ConvertedCompYearly와의 상관계수 (절댓값 내림차순)]
+  WorkExp: 0.4084
+  YearsCodePro: 0.4002
+  YearsCode: 0.3983
+  JobSat: 0.0752

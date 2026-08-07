@@ -1,0 +1,90 @@
+=== Step 5: 범주형 변수별 급여 중앙값·분포 비교 ===
+
+[Country] 그룹 수=68 (최소 표본 30건 기준, 급여 중앙값 내림차순 상위 10개)
+                                                      count    median           mean           std
+Country                                                                                           
+United States of America                               3990  130000.0  130208.145113  47472.030690
+Israel                                                  215  113334.0  108705.683721  48542.903920
+Switzerland                                             369  111417.0  110836.720867  40370.644894
+Australia                                               498   92492.0   94723.576305  37895.263550
+Singapore                                                45   88699.0   99865.777778  45367.745578
+Denmark                                                 210   88561.0   88951.757143  37307.969347
+Ireland                                                 119   88073.0   94298.915966  45811.133495
+Canada                                                  838   83597.0   90088.501193  41771.967779
+United Kingdom of Great Britain and Northern Ireland   1326   82802.0   89405.377828  41412.337914
+Norway                                                  222   79552.0   81726.175676  26454.139662
+
+[EdLevel] 그룹 수=8 (최소 표본 30건 기준, 급여 중앙값 내림차순 상위 10개)
+                                                                                    count   median          mean           std
+EdLevel                                                                                                                       
+Professional degree (JD, MD, Ph.D, Ed.D, etc.)                                       1075  75184.0  82825.150698  49311.633331
+Master’s degree (M.A., M.S., M.Eng., MBA, etc.)                                      6555  65271.0  73259.801220  47727.937375
+Bachelor’s degree (B.A., B.S., B.Eng., etc.)                                         9901  64444.0  73109.534491  54074.218999
+Associate degree (A.A., A.S., etc.)                                                   733  59073.0  68028.802183  50183.073386
+Some college/university study without earning a degree                               2679  56925.0  66712.891377  50859.570551
+Something else                                                                        204  53703.0  57811.627451  38178.261209
+Secondary school (e.g. American high school, German Realschule or Gymnasium, etc.)   1172  44221.5  52635.411263  44537.632787
+Primary/elementary school                                                             138  33165.0  51162.000000  53151.477891
+
+[DevType] 그룹 수=33 (최소 표본 30건 기준, 급여 중앙값 내림차순 상위 10개)
+                                      count    median           mean           std
+DevType                                                                           
+Developer Advocate                       45  112777.0  105246.022222  61443.893404
+Engineering manager                     472  105719.0  107949.177966  53023.201908
+Senior Executive (C-Suite, VP, etc.)    235  105000.0  103409.629787  55548.817682
+Engineer, site reliability              114   89684.0   93528.192982  56151.083067
+Cloud infrastructure engineer           258   86123.5   90822.124031  53044.626867
+Developer Experience                     75   85925.0  100412.386667  58849.423300
+Blockchain                               83   78407.0   81363.734940  61656.272101
+Other (please specify):                 612   76262.0   85703.573529  55391.017082
+Scientist                               116   72938.5   77418.405172  49029.228006
+Data engineer                           552   72906.5   80823.599638  52777.756653
+
+[RemoteWork] 그룹 수=3 (최소 표본 30건 기준, 급여 중앙값 내림차순 상위 10개)
+                                      count   median          mean           std
+RemoteWork                                                                      
+Remote                                 9039  70000.0  78720.462662  55801.750988
+Hybrid (some remote, some in-person)   9577  64444.0  71863.774042  47096.642213
+In-person                              3833  42962.0  52637.599009  45059.834345
+
+[OrgSize] 그룹 수=10 (최소 표본 30건 기준, 급여 중앙값 내림차순 상위 10개)
+                                                    count   median          mean           std
+OrgSize                                                                                       
+10,000 or more employees                             2506  82761.0  89268.863128  55684.034676
+5,000 to 9,999 employees                              892  75184.0  82250.008969  51656.840742
+1,000 to 4,999 employees                             2655  69814.0  78040.790584  50030.369011
+500 to 999 employees                                 1573  69814.0  76871.933884  50587.377048
+100 to 499 employees                                 4425  64444.0  72632.568136  50059.795810
+20 to 99 employees                                   4972  59073.0  66572.950724  48829.851861
+Just me - I am a freelancer, sole proprietor, etc.    943  58286.0  68824.897137  56112.152758
+I don’t know                                          323  51555.0  62273.133127  50039.760361
+10 to 19 employees                                   2022  50299.5  59218.060831  47916.024013
+2 to 9 employees                                     2121  46185.0  55986.718058  47406.313555
+
+[Employment] 그룹 수=16 (최소 표본 30건 기준, 급여 중앙값 내림차순 상위 10개)
+                                                                                             count   median          mean           std
+Employment                                                                                                                             
+Independent contractor, freelancer, or self-employed                                          1529  69814.0  77314.314585  54090.018641
+Employed, full-time                                                                          16813  66769.0  74999.372807  50954.138445
+Employed, full-time;Independent contractor, freelancer, or self-employed                      1614  65288.0  73547.855019  51824.237978
+Employed, part-time                                                                            423  51555.0  52191.040189  37198.288862
+Independent contractor, freelancer, or self-employed;Employed, part-time                       160  45505.5  54342.168750  45054.484057
+Employed, full-time;Employed, part-time                                                        101  42962.0  52324.881188  48567.216430
+Employed, full-time;Student, part-time                                                         381  38154.0  52283.112861  46092.883220
+Not employed, but looking for work;Independent contractor, freelancer, or self-employed         83  35000.0  56183.228916  59096.040934
+Employed, full-time;Independent contractor, freelancer, or self-employed;Student, part-time     69  31703.0  52329.057971  50018.915322
+Employed, full-time;Student, full-time                                                         364  27252.0  33908.195055  33033.272609
+
+[Industry] 그룹 수=15 (최소 표본 30건 기준, 급여 중앙값 내림차순 상위 10개)
+                                 count   median          mean           std
+Industry                                                                   
+Government                         525  80000.0  85287.379048  53643.481122
+Insurance                          215  80000.0  89241.497674  53127.007481
+Healthcare                         720  76380.5  84114.862500  53300.019701
+Transportation, or Supply Chain    488  73663.0  79613.198770  48701.733171
+Other:                            1670  71649.5  79289.546108  50836.972322
+Energy                             304  71365.5  76196.299342  47528.717664
+Media & Advertising Services       485  69814.0  75913.443299  50705.934418
+Retail and Consumer Services       686  69814.0  77194.259475  51614.446816
+Fintech                            882  69748.0  78369.955782  56904.149631
+Banking/Financial Services         717  69373.0  76949.711297  51690.801587

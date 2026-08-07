@@ -1,0 +1,56 @@
+=== Step 5 (Polars): 급여 정제 및 범주형 그룹 비교 ===
+
+[소요 시간] 0.025초, 정제 후 22457행
+
+[Country] 그룹 수=68 (최소 표본 30건, 급여 중앙값 내림차순 상위 5개)
+  United States of America: count=3990, median=130,000
+  Israel: count=215, median=113,334
+  Switzerland: count=369, median=111,417
+  Australia: count=498, median=92,492
+  Singapore: count=45, median=88,699
+
+[EdLevel] 그룹 수=8 (최소 표본 30건, 급여 중앙값 내림차순 상위 5개)
+  Professional degree (JD, MD, Ph.D, Ed.D, etc.): count=1075, median=75,184
+  Master’s degree (M.A., M.S., M.Eng., MBA, etc.): count=6555, median=65,271
+  Bachelor’s degree (B.A., B.S., B.Eng., etc.): count=9901, median=64,444
+  Associate degree (A.A., A.S., etc.): count=733, median=59,073
+  Some college/university study without earning a degree: count=2679, median=56,925
+
+[DevType] 그룹 수=34 (최소 표본 30건, 급여 중앙값 내림차순 상위 5개)
+  Developer Advocate: count=45, median=112,777
+  Engineering manager: count=472, median=105,719
+  Senior Executive (C-Suite, VP, etc.): count=235, median=105,000
+  Engineer, site reliability: count=114, median=89,684
+  Cloud infrastructure engineer: count=258, median=86,124
+
+[RemoteWork] 그룹 수=3 (최소 표본 30건, 급여 중앙값 내림차순 상위 5개)
+  Remote: count=9039, median=70,000
+  Hybrid (some remote, some in-person): count=9577, median=64,444
+  In-person: count=3833, median=42,962
+
+[OrgSize] 그룹 수=10 (최소 표본 30건, 급여 중앙값 내림차순 상위 5개)
+  10,000 or more employees: count=2506, median=82,761
+  5,000 to 9,999 employees: count=892, median=75,184
+  500 to 999 employees: count=1573, median=69,814
+  1,000 to 4,999 employees: count=2655, median=69,814
+  100 to 499 employees: count=4425, median=64,444
+
+[Employment] 그룹 수=16 (최소 표본 30건, 급여 중앙값 내림차순 상위 5개)
+  Independent contractor, freelancer, or self-employed: count=1529, median=69,814
+  Employed, full-time: count=16813, median=66,769
+  Employed, full-time;Independent contractor, freelancer, or self-employed: count=1614, median=65,288
+  Employed, part-time: count=423, median=51,555
+  Independent contractor, freelancer, or self-employed;Employed, part-time: count=160, median=45,506
+
+[Industry] 그룹 수=16 (최소 표본 30건, 급여 중앙값 내림차순 상위 5개)
+  Insurance: count=215, median=80,000
+  Government: count=525, median=80,000
+  Healthcare: count=720, median=76,380
+  Transportation, or Supply Chain: count=488, median=73,663
+  Other:: count=1670, median=71,650
+
+[교차검증] Pandas 결과와 대조
+  정제 후 행 수: Polars=22457, Pandas=22457 → 일치
+  RemoteWork='Hybrid (some remote, some in-person)' 중앙값: Polars=64444.0, Pandas=64,444 → 일치
+  RemoteWork='In-person' 중앙값: Polars=42962.0, Pandas=42,962 → 일치
+  RemoteWork='Remote' 중앙값: Polars=70000.0, Pandas=70,000 → 일치

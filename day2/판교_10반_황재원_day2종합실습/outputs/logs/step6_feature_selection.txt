@@ -1,0 +1,9 @@
+=== Step 6: 모델용 컬럼 선택 ===
+
+[수치형 피처] ['WorkExp', 'JobSat'] (Step4 상관계수 기준 채택)
+[범주형 피처] ['Country', 'RemoteWork', 'EdLevel', 'OrgSize', 'Industry'] (Step5 급여 중앙값 격차 기준 채택)
+[제외] DevType/Employment: 고유값 과다·상위 카테고리 집중도 낮음
+[제외] CompTotal/Currency: 급여에서 직접 파생되는 값 → 타깃 누수 방지
+[제외] YearsCode/YearsCodePro: WorkExp와 상관계수 0.87~0.92, VIF 6.2~10.6으로 다중공선성 심각 → 급여 상관·VIF가 가장 우수한 WorkExp만 유지
+
+[결과] shape=(22457, 8)

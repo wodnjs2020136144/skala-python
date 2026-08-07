@@ -1,0 +1,73 @@
+=== Step 1: 원본 데이터 EDA ===
+
+[형태] shape=(65437, 114), 메모리=195.7 MB
+[dtype 분포]
+  str: 100개 컬럼
+  float64: 13개 컬럼
+  int64: 1개 컬럼
+
+[결측률 상위 15개 컬럼]
+  AINextMuch less integrated: 98.2%
+  AINextLess integrated: 96.4%
+  AINextNo change: 80.9%
+  AINextMuch more integrated: 79.5%
+  EmbeddedAdmired: 74.4%
+  EmbeddedWantToWorkWith: 73.1%
+  EmbeddedHaveWorkedWith: 66.1%
+  ConvertedCompYearly: 64.2%
+  AIToolNot interested in Using: 62.7%
+  AINextMore integrated: 62.7%
+  Knowledge_9: 57.8%
+  Frequency_3: 57.7%
+  Knowledge_8: 57.6%
+  ProfessionalTech: 57.6%
+  Knowledge_7: 57.6%
+
+[결측률 낮은(분석 활용 용이) 15개 컬럼]
+  MainBranch: 0.0%
+  Check: 0.0%
+  Employment: 0.0%
+  Age: 0.0%
+  ResponseId: 0.0%
+  AISelect: 6.9%
+  EdLevel: 7.1%
+  LearnCode: 7.6%
+  NEWSOSites: 7.9%
+  YearsCode: 8.5%
+  LanguageHaveWorkedWith: 8.7%
+  SOAccount: 9.0%
+  SOVisitFreq: 9.0%
+  DevType: 9.2%
+  SOComm: 9.6%
+
+[타깃: ConvertedCompYearly]
+  결측 수: 42002 / 65437 (64.2%)
+  기술통계: {'count': 23435.0, 'mean': 86155.28726264134, 'std': 186756.97308629757, 'min': 1.0, '25%': 32712.0, '50%': 65000.0, '75%': 107971.5, 'max': 16256603.0}
+  분위수:
+    0.01: 208
+    0.05: 3,497
+    0.25: 32,712
+    0.50: 65,000
+    0.75: 107,972
+    0.95: 210,000
+    0.99: 393,751
+
+[수치형 후보 컬럼 dtype/샘플]
+  YearsCode: dtype=str, 샘플=['20', '37', '4', '9', '10']
+  YearsCodePro: dtype=str, 샘플=['17', '27', '7', '11', '25']
+  WorkExp: dtype=float64, 샘플=[np.float64(17.0), np.float64(15.0), np.float64(12.0), np.float64(29.0), np.float64(10.0)]
+  JobSat: dtype=float64, 샘플=[np.float64(8.0), np.float64(5.0), np.float64(10.0), np.float64(6.0), np.float64(9.0)]
+
+[범주형 후보 컬럼 고유값/상위 빈도]
+  Country: 고유값 185개, 상위3={'United States of America': 11095, 'Germany': 4947, 'India': 4231}
+  EdLevel: 고유값 8개, 상위3={'Bachelor’s degree (B.A., B.S., B.Eng., etc.)': 24942, 'Master’s degree (M.A., M.S., M.Eng., MBA, etc.)': 15557, 'Some college/university study without earning a degree': 7651}
+  DevType: 고유값 34개, 상위3={'Developer, full-stack': 18260, 'Developer, back-end': 9928, 'Student': 5102}
+  RemoteWork: 고유값 3개, 상위3={'Hybrid (some remote, some in-person)': 23015, 'Remote': 20831, 'In-person': 10960}
+  OrgSize: 고유값 10개, 상위3={'20 to 99 employees': 9754, '100 to 499 employees': 8694, '10,000 or more employees': 5558}
+  Employment: 고유값 110개, 상위3={'Employed, full-time': 39041, 'Independent contractor, freelancer, or self-employed': 4846, 'Student, full-time': 4709}
+  Industry: 고유값 15개, 상위3={'Software Development': 11918, 'Other:': 3077, 'Fintech': 1641}
+
+[멀티셀렉트 후보 컬럼 특성 (파싱은 보류)]
+  LanguageHaveWorkedWith: dtype=str, 샘플='Bash/Shell (all shells);Go;HTML/CSS;Java;JavaScript;Python;TypeScript'
+  DatabaseHaveWorkedWith: dtype=str, 샘플='Dynamodb;MongoDB;PostgreSQL'
+  PlatformHaveWorkedWith: dtype=str, 샘플='Amazon Web Services (AWS);Heroku;Netlify'

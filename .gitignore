@@ -17,5 +17,9 @@ sales_100k.csv
 # Claude Code 설정/규칙
 .claude/
 
-# 종합 실습 1 참고용 산출물 
+# 종합 실습 1 참고용 산출물
 day1/comprehensive_practice1_reference/
+
+# 종합 실습 2 원본 데이터(152MB, LFS) 및 모델 파일
+day2/판교_10반_황재원_day2종합실습/data/
+day2/판교_10반_황재원_day2종합실습/outputs/models/

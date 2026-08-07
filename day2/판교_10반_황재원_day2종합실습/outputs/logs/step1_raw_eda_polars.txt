@@ -1,0 +1,20 @@
+=== Step 1 (Polars): 원본 데이터 결측률 집계 ===
+
+[소요 시간] 0.001초 (Lazy API, 114개 컬럼)
+
+[결측률 상위 15개 컬럼]
+  AINextMuch less integrated: 98.2%
+  AINextLess integrated: 96.4%
+  AINextNo change: 80.9%
+  AINextMuch more integrated: 79.5%
+  EmbeddedAdmired: 74.4%
+  EmbeddedWantToWorkWith: 73.1%
+  EmbeddedHaveWorkedWith: 66.1%
+  ConvertedCompYearly: 64.2%
+  AIToolNot interested in Using: 62.7%
+  AINextMore integrated: 62.7%
+  Knowledge_9: 57.8%
+  Frequency_3: 57.7%
+  Knowledge_8: 57.6%
+  ProfessionalTech: 57.6%
+  Knowledge_7: 57.6%

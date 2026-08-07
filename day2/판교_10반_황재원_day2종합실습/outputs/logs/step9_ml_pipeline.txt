@@ -1,0 +1,8 @@
+=== Step 9: Pipeline 모델 학습·평가·저장 ===
+
+[회귀] R²=0.5370, MAE=25,635
+[회귀] 모델 저장: /Users/hwangjaewon/skala-workspace/skala-python/day2/판교_10반_황재원_day2종합실습/outputs/models/salary_regression_pipeline.joblib
+
+[분류] 고액 급여 기준(중앙값)=63,694
+[분류] Accuracy=0.7861, F1-score=0.7781
+[분류] 모델 저장: /Users/hwangjaewon/skala-workspace/skala-python/day2/판교_10반_황재원_day2종합실습/outputs/models/salary_classification_pipeline.joblib
